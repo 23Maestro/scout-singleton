@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+### Working style and safe-action policy
+
+- Do the obvious small fixes without asking (typos, domain default, missing imports), but never perform sweeping refactors, deletions, or structural moves without explicit approval.
+- Minimize redundant questions. If information exists in the repo or prior messages, use it.
+- When uncertainty could cause data loss or broad changes, pause and ask.
+- Show exact commands before running operations that touch Git, npm, or external systems.
+
+### Player profile links
+
+- Keep player profile links on `https://nationalprospectid.com/player/{id}` unless explicitly requested to change.
+

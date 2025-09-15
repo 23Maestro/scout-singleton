@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+globs: *.tsx
+---
+### UI conventions
+
+- Commands should read Raycast preferences for API keys and base URLs; never hardcode secrets.
+- External links for public player pages should use `https://nationalprospectid.com/player/{id}`.
+- Internal API and inbox/progress calls should target `https://dashboard.nationalpid.com` by default (can be overridden via preferences).
+

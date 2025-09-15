@@ -1,0 +1,22 @@
+---
+alwaysApply: true
+globs: *.ts,*.tsx
+---
+### NPID domain defaults
+
+- Use `https://dashboard.nationalpid.com` as the default NPID base URL.
+- Respect the user-editable preference `npidBaseUrl` from [package.json](mdc:package.json). Do not hardcode other domains.
+
+### Asana bridge and status mapping
+
+- Map statuses between tools as follows (per README):
+  - INBOX/Revise → `editing`
+  - HUDL/Review → `review`
+  - Dropbox/Approved → `approved`
+  - Uploads/Complete → `published`
+
+### Auth and response types
+
+- Prefer JSON APIs. If an endpoint returns HTML (per HAR), use a JSON variant or explicitly parse HTML with robust error handling.
+- If CSRF is required, pass `X-XSRF-TOKEN` via a preference and include it conditionally in Axios requests.
+

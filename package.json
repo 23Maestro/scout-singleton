@@ -1,0 +1,76 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "scout-singleton",
+  "title": "Scout Singleton",
+  "description": "Video editing workflow automation for student athletes",
+  "icon": "command-icon.png",
+  "author": "jerami_singleton",
+  "categories": ["Productivity", "Developer Tools"],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "id-tasks",
+      "title": "ID Tasks",
+      "description": "View and manage video editing tasks",
+      "mode": "view"
+    },
+    {
+      "name": "inbox-check",
+      "title": "Check NPID Inbox", 
+      "description": "Check video team inbox for new assignments",
+      "mode": "view"
+    },
+    {
+      "name": "player-lookup",
+      "title": "Player Lookup",
+      "description": "Find player details via Selenium automation", 
+      "mode": "view"
+    },
+    {
+      "name": "sync-status",
+      "title": "Sync Status",
+      "description": "Sync Asana status back to NPID",
+      "mode": "no-view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "npidApiKey",
+      "title": "NPID API Key",
+      "description": "API key for National Prospect ID access",
+      "type": "password",
+      "required": false
+    },
+    {
+      "name": "npidBaseUrl",
+      "title": "NPID Base URL",
+      "description": "Base URL for NPID API (default: https://api.nationalprospectid.com)",
+      "type": "textfield",
+      "required": false,
+      "default": "https://api.nationalprospectid.com"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.95.0",
+    "@raycast/utils": "^1.19.1",
+    "axios": "^1.8.4",
+    "date-fns": "^4.1.0",
+    "lodash": "^4.17.21",
+    "node-html-markdown": "^1.3.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.0.4",
+    "@types/lodash": "^4.14.182",
+    "@types/node": "22.13.10",
+    "@types/react": "19.0.10",
+    "eslint": "^9.22.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint"
+  }
+}

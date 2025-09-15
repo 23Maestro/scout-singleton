@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+### Repository operations and MCP.git usage
+
+- Prefer existing Git remotes. Do not create new GitHub repos automatically.
+- If `.git` is missing, it is acceptable to `git init` locally, but DO NOT add a new remote without explicit approval. Ask for an existing URL when absent.
+- When a remote exists, push non-interactively using the current branch:
+  - `git add -A && git commit -m "chore: sync"` (allow empty commit to succeed only if requested)
+  - `git push -u origin $(git rev-parse --abbrev-ref HEAD)`
+- When using system MCP.git, favor idempotent, non-interactive commands and show the exact command before execution.
+- Never commit secrets. Treat screenshots or docs that reveal tokens as sensitive and exclude from Git via `.gitignore` if added.
+
+### Project guardrails
+
+- Follow Raycast extension structure; commands and utilities must live under `src/`. Do not place tools in the repo root.
+- Keep TypeScript strict and fix lints before claiming a change complete.
+- Before edits that can affect many files, request confirmation unless the change is trivial and obviously safe.
+
+### Source of truth files
+
+- Manifest and preferences live in [package.json](mdc:package.json).
+- Public Raycast types are in [raycast-env.d.ts](mdc:raycast-env.d.ts). Update by editing `package.json`, not the generated file.
+
