@@ -35,27 +35,59 @@ function getSportIcon(sport: string): Icon {
 
 async function createAsanaTask(message: InboxMessage): Promise<string> {
   try {
+    // Get workspace to ensure proper context
+    const workspacesResponse = await request<{ data: any[] }>("/workspaces", {
+      params: { opt_fields: "gid,name,is_organization" }
+    });
+
+    const workspaces = workspacesResponse.data.data;
+    const workspace = workspaces.find(ws => ws.name === "National Prospect ID") || workspaces[0];
+
+    if (!workspace?.gid) {
+      throw new Error("No valid workspace found");
+    }
+
+    // Create the task with proper workspace context
+    const taskData = {
+      name: `${message.playerName}${message.sport ? ` - ${message.sport}` : ""}${message.class ? ` ${message.class}` : ""}`,
+      projects: [ID_TASKS_PROJECT_GID],
+      notes: `Player ID: ${message.playerId || "Unknown"}\n\nMessage: ${message.message || "No message"}\n\nVideo Links:\n${message.videoLinks?.join("\n") || "None"}`,
+      workspace: workspace.gid,
+      assignee: "me",
+      custom_fields: {}
+    };
+
+    // Only add custom fields if we have values
+    const customFields: Record<string, any> = {};
+    if (message.sport) customFields["Sport"] = message.sport;
+    if (message.class) customFields["Grad Year"] = message.class;
+    if (message.playerId) customFields["PlayerID"] = message.playerId;
+
+    // Set default status and stage
+    customFields["Status"] = "INBOX";
+    customFields["Stage"] = "Editing";
+
+    taskData.custom_fields = customFields;
+
+    console.log("Creating Asana task with data:", taskData);
+
     const response = await request<{ data: { gid: string; permalink_url: string } }>("/tasks", {
       method: "POST",
-      data: {
-        data: {
-          name: `${message.playerName} - ${message.sport} ${message.class}`,
-          projects: [ID_TASKS_PROJECT_GID],
-          notes: `Player ID: ${message.playerId}\n\nMessage: ${message.message}\n\nVideo Links:\n${message.videoLinks?.join("\n") || "None"}`,
-          custom_fields: {
-            Sport: message.sport,
-            Class: message.class,
-            PlayerID: message.playerId,
-            Status: "INBOX",
-            Stage: "Editing",
-          },
-        },
-      },
+      data: { data: taskData },
     });
-    
+
+    if (!response.data?.data?.gid) {
+      throw new Error("Invalid response from Asana API - missing task GID");
+    }
+
     return response.data.data.gid;
   } catch (error) {
     console.error("Error creating Asana task:", error);
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as any;
+      console.error("Asana API Error Details:", axiosError.response?.data);
+      throw new Error(`Asana API Error: ${axiosError.response?.data?.errors?.[0]?.message || axiosError.message}`);
+    }
     throw error;
   }
 }

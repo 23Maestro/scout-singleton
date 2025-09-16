@@ -2,52 +2,73 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "scout-singleton",
   "title": "Scout Singleton",
-  "description": "Video editing workflow automation for student athletes",
-  "icon": "command-icon.png",
-  "author": "jerami_singleton",
+  "description": "Student-athlete video workflow (Asana + NPID + Selenium)",
+  "icon": "video.png",
+  "author": "singleton23",
   "categories": ["Productivity", "Developer Tools"],
   "license": "MIT",
   "commands": [
     {
-      "name": "id-tasks",
-      "title": "ID Tasks",
-      "description": "View and manage video editing tasks",
-      "mode": "view"
+      "name": "active-tasks",
+      "title": "Active ID Tasks",
+      "description": "Browse tasks by Video Stage; filter by Video Status",
+      "mode": "view",
+      "icon": "id-tasks.png"
     },
     {
       "name": "inbox-check",
-      "title": "Check NPID Inbox", 
-      "description": "Check video team inbox for new assignments",
-      "mode": "view"
+      "title": "Inbox Check",
+      "description": "View and assign new NPID inbox threads",
+      "mode": "view",
+      "icon": "inbox-check.png"
     },
     {
-      "name": "player-lookup",
-      "title": "Player Lookup",
-      "description": "Find player details via Selenium automation", 
-      "mode": "view"
+      "name": "email-student-athletes",
+      "title": "Email Student Athletes",
+      "description": "Send templated emails to student athletes using Selenium automation",
+      "mode": "view",
+      "icon": "email-student-athletes.png"
     },
     {
-      "name": "sync-status",
-      "title": "Sync Status",
-      "description": "Sync Asana status back to NPID",
-      "mode": "no-view"
+      "name": "video-updates",
+      "title": "Video Updates",
+      "description": "Add videos to athlete profiles and send completion emails",
+      "mode": "view",
+      "icon": "video-updates.png"
     }
   ],
   "preferences": [
     {
-      "name": "npidApiKey",
-      "title": "NPID API Key",
-      "description": "API key for National Prospect ID access",
+      "name": "npidXsrfToken",
+      "title": "NPID XSRF Token",
+      "description": "XSRF token for NPID authentication (from browser session)",
       "type": "password",
-      "required": false
+      "required": false,
+      "default": "eyJpdiI6Inpnb3RqNVF4bUE1bG12Q25Xb0NTTWc9PSIsInZhbHVlIjoicEtHKzZcL252RER0aW1WZGFjVktJeEhnZG9MZDB1ZTNVcVZmQ1R1ZGkxdEd3aFFrWUpmM2JMMnNLMW9ZeVhaU1NMQmxHWlRZOG9OSmxQZk9QXC9xQ0swUT09IiwibWFjIjoiYjlmM2U5Y2E1OTZmYzI1MjhkZGE3N2FiMmI4MmVhY2I5ZThlMjNmNmJjYjAzN2E0OGE3OWI0MTBhNzUyMjI3YiJ9"
+    },
+    {
+      "name": "npidSession",
+      "title": "NPID Session Cookie", 
+      "description": "Session cookie for NPID authentication",
+      "type": "password",
+      "required": false,
+      "default": "eyJpdiI6InBWN2kwaWlENzhRVENodlpPZGpcLytBPT0iLCJ2YWx1ZSI6IkxoaktBSnNzd08yaG95bWU0d1hRSk5oQ0RsdEFpZ1hzYWh0Q2EzcHdzQ3c3WUFUbUd5ekhNNk5DaWwrWWJxSnl0SmhIVGxRV2I2bHBISUl0MjhmR0FnPT0iLCJtYWMiOiI5YjZlZjU2NzQ3NTNjYzg5MTZmYTg0YTRjNzJiMDk5YTllZmRlNDA0ZjMwM2E1M2U0NGQzNzkyM2FkNGI0Y2M0In0%3D"
     },
     {
       "name": "npidBaseUrl",
       "title": "NPID Base URL",
-      "description": "Base URL for NPID API (default: https://api.nationalprospectid.com)",
+      "description": "Base URL for NPID API (default: https://dashboard.nationalpid.com)",
       "type": "textfield",
       "required": false,
-      "default": "https://api.nationalprospectid.com"
+      "default": "https://dashboard.nationalpid.com"
+    },
+    {
+      "name": "asanaAccessToken",
+      "title": "Asana Personal Access Token",
+      "description": "Your Asana Personal Access Token for API access",
+      "type": "password",
+      "required": true,
+      "default": "2/1207648487940496/1208773397586807:92fc81ba3a6cb7e24cab8880173852ec"
     }
   ],
   "dependencies": {

@@ -1,11 +1,17 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { getOAuthToken } from "../components/withAsanaAuth";
+import { getPreferenceValues } from "@raycast/api";
+
+interface AsanaPreferences {
+  asanaAccessToken: string;
+}
 
 async function getAxiosInstance() {
+  const { asanaAccessToken } = getPreferenceValues<AsanaPreferences>();
+  
   return axios.create({
     baseURL: "https://app.asana.com/api/1.0",
     headers: {
-      Authorization: `Bearer ${getOAuthToken()}`,
+      Authorization: `Bearer ${asanaAccessToken}`,
     },
   });
 }

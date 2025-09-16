@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 """
-Player Lookup Selenium Automation Script
-Automates player profile lookups and data extraction from NPID
+Player Lookup Selenium Automation Script - Redirect to working version
 """
 
-import argparse
-import time
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
-import json
-import os
+import sys
+import subprocess
+
+# Redirect to the working video_updates.py which handles player operations
+if __name__ == "__main__":
+    working_script = "/Volumes/HomeSSD/developer/playerid-updates-v2/video_updates.py"
+    # Map player lookup actions to video_updates functionality
+    subprocess.run([sys.executable, working_script] + sys.argv[1:])
+    sys.exit(0)
+
+# Original code below for reference (inactive)
 
 def setup_driver():
     """Initialize Chrome WebDriver with appropriate options"""
@@ -40,14 +39,32 @@ def search_player_by_name(driver, player_name):
     try:
         print(f"Searching for player: {player_name}")
         
-        # Navigate to NPID search page
-        driver.get("https://nationalprospectid.com/search")
-        time.sleep(2)
-        
-        # Find and fill search box
-        search_box = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "input[placeholder*='search'], input[name*='search'], input[type='search']"))
-        )
+        # Try multiple NPID search URLs
+        search_urls = [
+            "https://nationalprospectid.com/search",
+            "https://dashboard.nationalpid.com/search",
+            "https://nationalprospectid.com/players",
+            "https://dashboard.nationalpid.com/players"
+        ]
+
+        search_box = None
+        for url in search_urls:
+            try:
+                driver.get(url)
+                time.sleep(2)
+
+                # Find and fill search box
+                search_box = WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "input[placeholder*='search'], input[name*='search'], input[type='search'], input[id*='search']"))
+                )
+                print(f"Found search on: {url}")
+                break
+            except TimeoutException:
+                print(f"No search found on: {url}")
+                continue
+
+        if not search_box:
+            raise Exception("Could not find search functionality on any NPID URL")
         
         search_box.clear()
         search_box.send_keys(player_name)
