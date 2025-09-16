@@ -15,10 +15,10 @@ export interface SeleniumSearchResult {
 
 export async function runSeleniumPlayerSearch(athleteName: string): Promise<SeleniumSearchResult[]> {
   return new Promise((resolve, reject) => {
-    // Path to the Python script in the scripts directory
-    const scriptPath = path.join(__dirname, "..", "..", "scripts", "player_lookup.py");
+    // Use absolute path to the Python script - hardcoded to workspace
+    const scriptPath = "/Users/singleton23/Raycast/scout-singleton/scripts/extract_video_progress.py";
     
-    const pythonProcess = spawn("python3", [scriptPath, athleteName], {
+    const pythonProcess = spawn("/usr/bin/python3", [scriptPath, "--athlete_name", athleteName], {
       stdio: ["pipe", "pipe", "pipe"],
     });
 

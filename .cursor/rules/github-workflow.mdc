@@ -1,0 +1,67 @@
+---
+description: GitHub workflow and Git commands for repository management
+---
+
+# GitHub Workflow Guide
+
+When the user mentions "github", "git", or "push updates", they are referring to this standard workflow:
+
+## Repeatable Workflow Going Forward
+
+```bash
+# 1. Make changes in Cursor
+# 2. Stage all changes
+git add -A
+
+# 3. Commit with descriptive message
+git commit -m "your message here"
+
+# 4. Push to GitHub
+git push
+```
+
+## Quick Commands for Common Tasks
+
+**Check status:**
+```bash
+git status
+```
+
+**See your commit history:**
+```bash
+git log --oneline
+```
+
+**Create and switch to a new branch:**
+```bash
+git checkout -b feature-name
+```
+
+**Merge back to main:**
+```bash
+git checkout main
+git merge feature-name
+```
+
+**Add remote (if needed):**
+```bash
+git remote add origin https://github.com/username/repo-name.git
+```
+
+**First time push setup:**
+```bash
+git push -u origin main
+```
+
+## Repository Information
+
+- **Current repo:** https://github.com/23Maestro/scout-singleton
+- **Authentication:** GitHub CLI (gh) is installed and authenticated
+- **User:** 23Maestro
+- **Default workflow:** Stage → Commit → Push
+
+## Memory Preferences
+
+- Always use existing Git remotes; do not create new GitHub repos automatically [[memory:8927225]]
+- Prefer non-interactive commands for Git operations
+- Show exact commands before execution for Git, npm, or external systems
