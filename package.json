@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Student-athlete video workflow (Asana + NPID + Selenium)",
   "icon": "video-updates.png",
-  "author": "23Maestro",
+  "author": "singleton23",
   "categories": [
     "Productivity",
     "Developer Tools"
