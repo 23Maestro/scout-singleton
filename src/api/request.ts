@@ -1,5 +1,5 @@
-import axios, { AxiosRequestConfig } from "axios";
-import { getPreferenceValues } from "@raycast/api";
+import axios, { AxiosRequestConfig } from 'axios';
+import { getPreferenceValues } from '@raycast/api';
 
 interface AsanaPreferences {
   asanaAccessToken: string;
@@ -7,9 +7,9 @@ interface AsanaPreferences {
 
 async function getAxiosInstance() {
   const { asanaAccessToken } = getPreferenceValues<AsanaPreferences>();
-  
+
   return axios.create({
-    baseURL: "https://app.asana.com/api/1.0",
+    baseURL: 'https://app.asana.com/api/1.0',
     headers: {
       Authorization: `Bearer ${asanaAccessToken}`,
     },

@@ -1,4 +1,4 @@
-import { runSeleniumPlayerSearch, SeleniumSearchResult } from "../lib/selenium-runner";
+import { runSeleniumPlayerSearch, SeleniumSearchResult } from '../lib/selenium-runner';
 
 export interface PlayerSearchResult {
   playerId?: string;
@@ -15,7 +15,7 @@ export interface PlayerSearchResult {
 export async function findPlayerIdsByName(athleteName: string): Promise<PlayerSearchResult[]> {
   try {
     const results = await runSeleniumPlayerSearch(athleteName);
-    
+
     // Convert SeleniumSearchResult to PlayerSearchResult
     return results.map((result: SeleniumSearchResult) => ({
       playerId: result.playerId,
@@ -33,10 +33,12 @@ export async function findPlayerIdsByName(athleteName: string): Promise<PlayerSe
   }
 }
 
-export async function resolvePlayerIdentity(athleteName: string): Promise<PlayerSearchResult | null> {
+export async function resolvePlayerIdentity(
+  athleteName: string,
+): Promise<PlayerSearchResult | null> {
   try {
     const results = await findPlayerIdsByName(athleteName);
-    
+
     // Return the first match, or null if no matches
     return results.length > 0 ? results[0] : null;
   } catch (error) {

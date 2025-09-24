@@ -1,20 +1,20 @@
-import { VideoTask } from "../types/workflow";
-import { pushStageStatusToWebsite, fetchWebsiteRowByPlayerId } from "../lib/video-team-api";
-import { updateAsanaFields } from "./update-asana-fields";
-import { findPlayerIdsByName } from "./player-resolver";
+import { VideoTask } from '../types/workflow';
+import { pushStageStatusToWebsite, fetchWebsiteRowByPlayerId } from '../lib/video-team-api';
+import { updateAsanaFields } from './update-asana-fields';
+import { findPlayerIdsByName } from './player-resolver';
 
 // 1) Push timelines (DB truth) to website
 export async function pushTimelinesToWebsite(task: VideoTask) {
   let playerId = task.playerId;
   if (!playerId) {
-    const rawName = task.athleteName || task.taskName || "";
-    const searchName = rawName.split("-")[0].trim();
+    const rawName = task.athleteName || task.taskName || '';
+    const searchName = rawName.split('-')[0].trim();
     if (searchName.length > 0) {
       const results = await findPlayerIdsByName(searchName);
       playerId = results[0]?.playerId;
     }
   }
-  if (!playerId) throw new Error("Missing player identity (PlayerID or Name lookup failed)");
+  if (!playerId) throw new Error('Missing player identity (PlayerID or Name lookup failed)');
   await pushStageStatusToWebsite({
     playerId,
     stage: task.stage,
@@ -27,14 +27,14 @@ export async function pushTimelinesToWebsite(task: VideoTask) {
 export async function backfillMetadataToAsana(task: VideoTask) {
   let playerId = task.playerId;
   if (!playerId) {
-    const rawName = task.athleteName || task.taskName || "";
-    const searchName = rawName.split("-")[0].trim();
+    const rawName = task.athleteName || task.taskName || '';
+    const searchName = rawName.split('-')[0].trim();
     if (searchName.length > 0) {
       const results = await findPlayerIdsByName(searchName);
       playerId = results[0]?.playerId;
     }
   }
-  if (!playerId) throw new Error("Missing player identity (PlayerID or Name lookup failed)");
+  if (!playerId) throw new Error('Missing player identity (PlayerID or Name lookup failed)');
   const w = await fetchWebsiteRowByPlayerId(playerId);
   if (!w) return;
 

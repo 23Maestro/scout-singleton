@@ -1,4 +1,4 @@
-import { showToast, Toast } from "@raycast/api";
+import { showToast, Toast } from '@raycast/api';
 
 export interface MCPResponse {
   success: boolean;
@@ -26,9 +26,9 @@ export class MCPClient {
   async callTool(tool: string, args: Record<string, any> = {}): Promise<MCPResponse> {
     try {
       const response = await fetch(`${this.serverUrl}/mcp-call`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           tool,
@@ -64,7 +64,7 @@ export class MCPClient {
       loadingMessage?: string;
       successMessage?: string;
       errorMessage?: string;
-    } = {}
+    } = {},
   ): Promise<MCPResponse> {
     const { loadingMessage, successMessage, errorMessage } = options;
 
@@ -118,7 +118,7 @@ export class MCPClient {
   async isHealthy(): Promise<boolean> {
     try {
       const response = await fetch(`${this.serverUrl}/health`, {
-        method: "GET",
+        method: 'GET',
         timeout: 5000,
       });
       return response.ok;
@@ -131,21 +131,27 @@ export class MCPClient {
 
 // Pre-configured MCP clients for your services
 export const npidMCPClient = new MCPClient({
-  serverUrl: "http://localhost:8000", // Adjust based on your setup
-  serverName: "scout-npid",
+  serverUrl: 'http://localhost:8000', // Adjust based on your setup
+  serverName: 'scout-npid',
 });
 
 export const asanaMCPClient = new MCPClient({
-  serverUrl: "http://localhost:8001", // Adjust based on your setup
-  serverName: "scout-asana",
+  serverUrl: 'http://localhost:8001', // Adjust based on your setup
+  serverName: 'scout-asana',
 });
 
 // Utility function to call NPID tools
-export async function callNPIDTool(tool: string, args: Record<string, any> = {}): Promise<MCPResponse> {
+export async function callNPIDTool(
+  tool: string,
+  args: Record<string, any> = {},
+): Promise<MCPResponse> {
   return npidMCPClient.callTool(tool, args);
 }
 
 // Utility function to call Asana tools
-export async function callAsanaTool(tool: string, args: Record<string, any> = {}): Promise<MCPResponse> {
+export async function callAsanaTool(
+  tool: string,
+  args: Record<string, any> = {},
+): Promise<MCPResponse> {
   return asanaMCPClient.callTool(tool, args);
 }

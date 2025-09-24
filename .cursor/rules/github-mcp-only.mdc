@@ -1,0 +1,72 @@
+---
+alwaysApply: true
+---
+
+# GitHub Operations - Use MCP Only
+
+**CRITICAL**: Always use GitHub MCP tools for all GitHub operations when available. If GitHub MCP tools are not available, use the standard `gh` CLI tool as a fallback.
+
+## Preferred GitHub MCP Tools
+
+When available, use these MCP tools for GitHub operations:
+
+- **`mcp_github_create_issue`**: For creating GitHub issues
+- **`mcp_github_list_issues`**: For listing and searching issues
+- **`mcp_github_get_issue`**: For retrieving specific issue details
+- **`mcp_github_update_issue`**: For updating issue status, labels, etc.
+- **`mcp_github_create_pull_request`**: For creating pull requests
+- **`mcp_github_list_pull_requests`**: For listing PRs
+- **`mcp_github_get_pull_request`**: For retrieving PR details
+- **`mcp_github_merge_pull_request`**: For merging PRs
+- **`mcp_github_list_commits`**: For viewing commit history
+- **`mcp_github_get_file_contents`**: For reading repository files
+- **`mcp_github_search_code`**: For searching code across repositories
+- **`mcp_github_list_branches`**: For listing repository branches
+- **`mcp_github_get_me`**: For getting current user information
+
+## Fallback Operations
+
+If GitHub MCP tools are not available, use `gh` CLI commands:
+- `gh issue create` - For creating GitHub issues
+- `gh issue list` - For listing issues
+- `gh pr create` - For creating pull requests
+- `gh pr list` - For listing pull requests
+- `gh repo view` - For repository information
+
+## Repository Context
+
+Current repository: `23Maestro/scout-singleton`
+- Use this repository for all GitHub operations
+- Ensure proper authentication and permissions are configured
+
+## Benefits of MCP
+
+- **Structured data**: MCP returns properly typed data structures
+- **Better integration**: Seamless integration with AI workflows
+- **Error handling**: Improved error handling and validation
+- **Consistency**: Standardized interface across all GitHub operations
+
+## Example Usage
+
+```typescript
+// ✅ PREFERRED - Use MCP when available
+await mcp_github_create_issue({
+  owner: "23Maestro",
+  repo: "scout-singleton", 
+  title: "Fix Selenium Runner Issues",
+  body: "Description of the issue..."
+});
+
+// ✅ FALLBACK - Use gh CLI when MCP not available
+// gh issue create --title "Fix Selenium Runner Issues" --body "Description..."
+```
+
+## Error Handling
+
+If GitHub MCP tools are not available:
+1. **Report that MCP tools are not available**
+2. **Fall back to `gh` CLI commands**
+3. **Ensure proper authentication with GitHub CLI**
+4. **Use structured command formats for consistency**
+
+This rule ensures we use the best available tool for GitHub operations, preferring MCP when available.

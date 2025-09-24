@@ -1,5 +1,5 @@
-import { npidRequest } from "../api/npid";
-import { TaskStage, TaskStatus } from "../types/workflow";
+import { npidRequest } from '../api/npid';
+import { TaskStage, TaskStatus } from '../types/workflow';
 
 export interface WebsitePlayerData {
   player_id: string;
@@ -10,26 +10,28 @@ export interface WebsitePlayerData {
   positions?: string;
   sport?: string;
   class_year?: number;
-  payment_status?: "Paid" | "Unpaid" | "Unknown";
+  payment_status?: 'Paid' | 'Unpaid' | 'Unknown';
   stage?: string;
   status?: string;
   due_date?: string;
 }
 
-export async function fetchWebsiteRowByPlayerId(playerIdOrUrl: string): Promise<WebsitePlayerData | null> {
+export async function fetchWebsiteRowByPlayerId(
+  playerIdOrUrl: string,
+): Promise<WebsitePlayerData | null> {
   try {
     // Try multiple endpoints to find player data from video progress page
     const endpoints = [
       `/videoteammsg/videomailprogress/search?name=${encodeURIComponent(playerIdOrUrl)}`,
       `/api/videoteam/progress?player_id=${encodeURIComponent(playerIdOrUrl)}`,
       `/player/${playerIdOrUrl}`,
-      `/api/player/${playerIdOrUrl}`
+      `/api/player/${playerIdOrUrl}`,
     ];
 
     for (const endpoint of endpoints) {
       try {
-        const response = await npidRequest(endpoint, { method: "GET" });
-        
+        const response = await npidRequest(endpoint, { method: 'GET' });
+
         if (response && (response.player_id || response.id)) {
           return {
             player_id: response.player_id || response.id || playerIdOrUrl,
@@ -51,7 +53,7 @@ export async function fetchWebsiteRowByPlayerId(playerIdOrUrl: string): Promise<
         continue;
       }
     }
-    
+
     return null;
   } catch (error) {
     console.error(`Failed to fetch player data for ${playerIdOrUrl}:`, error);
@@ -68,7 +70,7 @@ export async function pushStageStatusToWebsite(params: {
 }): Promise<void> {
   const identifier = params.playerId || params.profileUrl;
   if (!identifier) {
-    throw new Error("Either playerId or profileUrl is required");
+    throw new Error('Either playerId or profileUrl is required');
   }
 
   // Map our internal stage/status to NPID format
@@ -77,10 +79,10 @@ export async function pushStageStatusToWebsite(params: {
 
   try {
     await npidRequest(`/videoteammsg/videoprogress/${identifier}`, {
-      method: "PATCH",
+      method: 'PATCH',
       headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json;charset=utf-8",
+        Accept: 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
       },
       data: {
         stage: npidStage,
@@ -96,21 +98,32 @@ export async function pushStageStatusToWebsite(params: {
 
 function mapStageToNPID(stage: TaskStage): string {
   switch (stage) {
-    case "On Hold": return "On Hold";
-    case "Awaiting Client": return "Awaiting Client";
-    case "In Queue": return "In Progress";
-    case "Done": return "Complete";
-    default: return "In Progress";
+    case 'On Hold':
+      return 'On Hold';
+    case 'Awaiting Client':
+      return 'Awaiting Client';
+    case 'In Queue':
+      return 'In Progress';
+    case 'Done':
+      return 'Complete';
+    default:
+      return 'In Progress';
   }
 }
 
 function mapStatusToNPID(status: TaskStatus): string {
   switch (status) {
-    case "Revisions": return "Revisions";
-    case "HUDL": return "Review";
-    case "Dropbox": return "Approved";
-    case "External Links": return "Complete";
-    case "Not Approved": return "Not Approved";
-    default: return "In Progress";
+    case 'Revisions':
+      return 'Revisions';
+    case 'HUDL':
+      return 'Review';
+    case 'Dropbox':
+      return 'Approved';
+    case 'External Links':
+      return 'Complete';
+    case 'Not Approved':
+      return 'Not Approved';
+    default:
+      return 'In Progress';
   }
 }

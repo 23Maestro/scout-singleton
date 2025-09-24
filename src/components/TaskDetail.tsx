@@ -1,11 +1,11 @@
-import { ActionPanel, Color, Detail, Icon } from "@raycast/api";
-import { getAvatarIcon, MutatePromise } from "@raycast/utils";
-import { NodeHtmlMarkdown } from "node-html-markdown";
-import { Task } from "../api/tasks";
-import { asanaToRaycastColor } from "../helpers/colors";
-import { getDueDateColor, getDueDateText } from "../helpers/task";
-import { useTaskDetail } from "../hooks/useTaskDetail";
-import TaskActions from "./TaskActions";
+import { ActionPanel, Color, Detail, Icon } from '@raycast/api';
+import { getAvatarIcon, MutatePromise } from '@raycast/utils';
+import { NodeHtmlMarkdown } from 'node-html-markdown';
+import { Task } from '../api/tasks';
+import { asanaToRaycastColor } from '../helpers/colors';
+import { getDueDateColor, getDueDateText } from '../helpers/task';
+import { useTaskDetail } from '../hooks/useTaskDetail';
+import TaskActions from './TaskActions';
 
 type TaskDetailProps = {
   task: Task;
@@ -19,7 +19,7 @@ export default function TaskDetail({ task: originalTask, workspace, mutateList }
   let markdown = `# ${task.name}`;
 
   if (task.html_notes) {
-    const notes = NodeHtmlMarkdown.translate(task.html_notes.replace(/\n/g, "<br/>"));
+    const notes = NodeHtmlMarkdown.translate(task.html_notes.replace(/\n/g, '<br/>'));
     markdown += `\n\n${notes}`;
   }
 
@@ -33,13 +33,13 @@ export default function TaskDetail({ task: originalTask, workspace, mutateList }
           <Detail.Metadata.Label
             title="Completion Status"
             icon={task.completed ? Icon.CheckCircle : Icon.Circle}
-            text={task.completed ? "Completed" : "Incomplete"}
+            text={task.completed ? 'Completed' : 'Incomplete'}
           />
 
           <Detail.Metadata.Label
             title="Assignee"
             icon={task.assignee ? getAvatarIcon(task.assignee.name) : Icon.Person}
-            text={task.assignee?.name || "Unassigned"}
+            text={task.assignee?.name || 'Unassigned'}
           />
 
           <Detail.Metadata.Label
@@ -49,7 +49,7 @@ export default function TaskDetail({ task: originalTask, workspace, mutateList }
           />
 
           {task.projects && task.projects.length > 0 ? (
-            <Detail.Metadata.TagList title={task.projects.length === 1 ? "Project" : "Projects"}>
+            <Detail.Metadata.TagList title={task.projects.length === 1 ? 'Project' : 'Projects'}>
               {task.projects.map((project) => {
                 return (
                   <Detail.Metadata.TagList.Item
@@ -64,7 +64,7 @@ export default function TaskDetail({ task: originalTask, workspace, mutateList }
 
           {task.custom_fields && task.custom_fields.length > 0
             ? task.custom_fields.map((field) => {
-                if (field.resource_subtype === "enum" && field.enum_value) {
+                if (field.resource_subtype === 'enum' && field.enum_value) {
                   return (
                     <Detail.Metadata.TagList key={field.gid} title={field.name}>
                       <Detail.Metadata.TagList.Item
@@ -79,7 +79,7 @@ export default function TaskDetail({ task: originalTask, workspace, mutateList }
                   <Detail.Metadata.Label
                     key={field.gid}
                     title={field.name}
-                    text={field.display_value ? field.display_value : "None"}
+                    text={field.display_value ? field.display_value : 'None'}
                   />
                 );
               })

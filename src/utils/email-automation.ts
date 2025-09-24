@@ -19,8 +19,8 @@ export async function sendVideoCompletionNotification(params: {
   recipientEmail: string;
 }): Promise<void> {
   // Placeholder for email sending logic
-  console.log("Would send video completion email:", params);
-  
+  console.log('Would send video completion email:', params);
+
   // TODO: Integrate with email service (SendGrid, SES, etc.)
   // const template: VideoCompletionEmail = {
   //   subject: `Video Complete: ${params.playerName}`,
@@ -35,7 +35,7 @@ export async function sendRevisionRequestEmail(params: {
   recipientEmail: string;
 }): Promise<void> {
   // Placeholder for revision request email
-  console.log("Would send revision request email:", params);
+  console.log('Would send revision request email:', params);
 }
 
 export async function sendApprovalRequestEmail(params: {
@@ -44,5 +44,5 @@ export async function sendApprovalRequestEmail(params: {
   recipientEmail: string;
 }): Promise<void> {
   // Placeholder for approval request email
-  console.log("Would send approval request email:", params);
+  console.log('Would send approval request email:', params);
 }

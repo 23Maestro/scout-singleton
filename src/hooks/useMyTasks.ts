@@ -1,7 +1,7 @@
-import { useCachedPromise } from "@raycast/utils";
-import { getPreferenceValues } from "@raycast/api";
-import { getMyTasks } from "../api/tasks";
-import { handleUseCachedPromiseError } from "../helpers/errors";
+import { useCachedPromise } from '@raycast/utils';
+import { getPreferenceValues } from '@raycast/api';
+import { getMyTasks } from '../api/tasks';
+import { handleUseCachedPromiseError } from '../helpers/errors';
 
 const { showCompletedTasks } = getPreferenceValues<Preferences.MyTasks>();
 

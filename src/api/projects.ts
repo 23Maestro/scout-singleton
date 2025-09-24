@@ -1,5 +1,5 @@
-import { request } from "./request";
-import { Task, CustomField } from "./tasks";
+import { request } from './request';
+import { Task, CustomField } from './tasks';
 
 export type Project = {
   gid: string;
@@ -17,8 +17,8 @@ export async function getProjects(workspace: string) {
   const { data } = await request<{ data: Project[] }>(`/workspaces/${workspace}/typeahead`, {
     params: {
       workspace,
-      resource_type: "project",
-      opt_fields: "id,name,icon,color,custom_field_settings.custom_field",
+      resource_type: 'project',
+      opt_fields: 'id,name,icon,color,custom_field_settings.custom_field',
     },
   });
 
@@ -28,7 +28,7 @@ export async function getProjects(workspace: string) {
 export async function addProject(taskId: string, projectId: string) {
   const payload = { project: projectId };
   const { data } = await request<{ data: Task }>(`/tasks/${taskId}/addProject`, {
-    method: "POST",
+    method: 'POST',
     data: { data: payload },
   });
 
@@ -38,7 +38,7 @@ export async function addProject(taskId: string, projectId: string) {
 export async function removeProject(taskId: string, projectId: string) {
   const payload = { project: projectId };
   const { data } = await request<{ data: Task }>(`/tasks/${taskId}/removeProject`, {
-    method: "POST",
+    method: 'POST',
     data: { data: payload },
   });
 

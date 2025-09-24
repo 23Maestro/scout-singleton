@@ -9,20 +9,20 @@ import {
   showToast,
   getPreferenceValues,
   closeMainWindow,
-} from "@raycast/api";
-import { format } from "date-fns";
-import { FormValidation, getAvatarIcon, useCachedState, useForm } from "@raycast/utils";
-import { useMemo, useEffect } from "react";
-import { useWorkspaces } from "../hooks/useWorkspaces";
-import { useProjects } from "../hooks/useProjects";
-import { useUsers } from "../hooks/useUsers";
-import { useMe } from "../hooks/useMe";
-import { getErrorMessage } from "../helpers/errors";
-import { TaskFormValues } from "../create-task";
-import { getProjectIcon } from "../helpers/project";
-import TaskDetail from "./TaskDetail";
-import { createTask } from "../api/tasks";
-import { asanaToRaycastColor } from "../helpers/colors";
+} from '@raycast/api';
+import { format } from 'date-fns';
+import { FormValidation, getAvatarIcon, useCachedState, useForm } from '@raycast/utils';
+import { useMemo, useEffect } from 'react';
+import { useWorkspaces } from '../hooks/useWorkspaces';
+import { useProjects } from '../hooks/useProjects';
+import { useUsers } from '../hooks/useUsers';
+import { useMe } from '../hooks/useMe';
+import { getErrorMessage } from '../helpers/errors';
+import { TaskFormValues } from '../create-task';
+import { getProjectIcon } from '../helpers/project';
+import TaskDetail from './TaskDetail';
+import { createTask } from '../api/tasks';
+import { asanaToRaycastColor } from '../helpers/colors';
 
 export default function CreateTaskForm(props: {
   draftValues?: TaskFormValues;
@@ -32,21 +32,21 @@ export default function CreateTaskForm(props: {
 }) {
   const { push } = useNavigation();
 
-  const [lastWorkspace, setLastWorkspace] = useCachedState<string>("last-workspace");
+  const [lastWorkspace, setLastWorkspace] = useCachedState<string>('last-workspace');
 
   const { shouldCloseMainWindow } = getPreferenceValues<Preferences.CreateTask>();
   const { handleSubmit, itemProps, values, focus, reset } = useForm<TaskFormValues>({
     async onSubmit(values) {
-      const toast = await showToast({ style: Toast.Style.Animated, title: "Creating task" });
+      const toast = await showToast({ style: Toast.Style.Animated, title: 'Creating task' });
 
       try {
         const htmlNotes = `<body>${values.description}</body>`;
 
         const customFieldsEntries = Object.entries(values).filter(
-          ([key, value]) => key.startsWith("field-") && value !== "",
+          ([key, value]) => key.startsWith('field-') && value !== '',
         );
         const customFields = customFieldsEntries.reduce((acc, field) => {
-          const fieldId = field[0].split("-")[1];
+          const fieldId = field[0].split('-')[1];
           return { ...acc, [fieldId]: field[1] };
         }, {});
 
@@ -57,38 +57,38 @@ export default function CreateTaskForm(props: {
           ...(values.projects && values.projects.length > 0 ? { projects: values.projects } : {}),
           ...(values.description ? { html_notes: htmlNotes } : {}),
           ...(values.assignee ? { assignee: values.assignee } : {}),
-          ...(values.start_date ? { start_on: format(values.start_date, "yyyy-MM-dd") } : {}),
-          ...(values.due_date ? { due_on: format(values.due_date, "yyyy-MM-dd") } : {}),
+          ...(values.start_date ? { start_on: format(values.start_date, 'yyyy-MM-dd') } : {}),
+          ...(values.due_date ? { due_on: format(values.due_date, 'yyyy-MM-dd') } : {}),
         });
 
         if (shouldCloseMainWindow) {
           await closeMainWindow();
-          await showToast({ style: Toast.Style.Success, title: "Task created" });
+          await showToast({ style: Toast.Style.Success, title: 'Task created' });
           return;
         }
 
         toast.style = Toast.Style.Success;
-        toast.title = "Created task";
+        toast.title = 'Created task';
 
         toast.primaryAction = {
-          title: "Open Task",
-          shortcut: { modifiers: ["cmd", "shift"], key: "o" },
+          title: 'Open Task',
+          shortcut: { modifiers: ['cmd', 'shift'], key: 'o' },
           onAction: () => push(<TaskDetail task={task} />),
         };
 
         toast.secondaryAction = {
-          title: "Copy Task URL",
-          shortcut: { modifiers: ["cmd", "shift"], key: "c" },
+          title: 'Copy Task URL',
+          shortcut: { modifiers: ['cmd', 'shift'], key: 'c' },
           onAction: () => {
             Clipboard.copy(task.permalink_url);
-            toast.title = "Copied to clipboard";
+            toast.title = 'Copied to clipboard';
             toast.message = task.permalink_url;
           },
         };
 
         reset({
-          name: "",
-          description: "",
+          name: '',
+          description: '',
           due_date: null,
           // keep the rest
           assignee: values.assignee,
@@ -96,10 +96,10 @@ export default function CreateTaskForm(props: {
           projects: values.projects,
         });
 
-        focus("name");
+        focus('name');
       } catch (error) {
         toast.style = Toast.Style.Failure;
-        toast.title = "Failed to create task";
+        toast.title = 'Failed to create task';
         toast.message = getErrorMessage(error);
       }
     },
@@ -133,7 +133,9 @@ export default function CreateTaskForm(props: {
     });
 
     return selectedProjects
-      ?.filter((project) => project.custom_field_settings && project.custom_field_settings.length > 0)
+      ?.filter(
+        (project) => project.custom_field_settings && project.custom_field_settings.length > 0,
+      )
       ?.map((project) => project.custom_field_settings?.map((setting) => setting.custom_field))
       .flat();
   }, [values.projects]);
@@ -154,11 +156,18 @@ export default function CreateTaskForm(props: {
     >
       <Form.Dropdown title="Workspace" storeValue {...itemProps.workspace}>
         {workspaces?.map((workspace) => {
-          return <Form.Dropdown.Item key={workspace.gid} value={workspace.gid} title={workspace.name} />;
+          return (
+            <Form.Dropdown.Item key={workspace.gid} value={workspace.gid} title={workspace.name} />
+          );
         })}
       </Form.Dropdown>
 
-      <Form.TagPicker title="Projects" placeholder="Select one or more projects" storeValue {...itemProps.projects}>
+      <Form.TagPicker
+        title="Projects"
+        placeholder="Select one or more projects"
+        storeValue
+        {...itemProps.projects}
+      >
         {allProjects?.map((project) => {
           return (
             <Form.TagPicker.Item
@@ -173,9 +182,18 @@ export default function CreateTaskForm(props: {
 
       <Form.Separator />
 
-      <Form.TextField title="Task Name" placeholder="Short title for the task" autoFocus {...itemProps.name} />
+      <Form.TextField
+        title="Task Name"
+        placeholder="Short title for the task"
+        autoFocus
+        {...itemProps.name}
+      />
 
-      <Form.TextArea title="Description" placeholder="Add more detail to this task" {...itemProps.description} />
+      <Form.TextArea
+        title="Description"
+        placeholder="Add more detail to this task"
+        {...itemProps.description}
+      />
 
       <Form.Dropdown title="Assignee" storeValue {...itemProps.assignee}>
         <Form.Dropdown.Item title="Unassigned" value="" icon={Icon.Person} />
@@ -192,25 +210,32 @@ export default function CreateTaskForm(props: {
         })}
       </Form.Dropdown>
       {selectedWorkspace?.is_organization && showStartDate ? (
-        <Form.DatePicker title="Start Date" type={Form.DatePicker.Type.Date} {...itemProps.start_date} />
+        <Form.DatePicker
+          title="Start Date"
+          type={Form.DatePicker.Type.Date}
+          {...itemProps.start_date}
+        />
       ) : null}
       <Form.DatePicker title="Due Date" type={Form.DatePicker.Type.Date} {...itemProps.due_date} />
 
       {hasCustomFields
         ? customFields.map((field) => {
-            if (field.resource_subtype === "enum") {
+            if (field.resource_subtype === 'enum') {
               return (
                 <Form.Dropdown id={`field-${field.gid}`} key={field.gid} title={field.name}>
                   <Form.Dropdown.Item title="–" value="" />
 
-                  {field.resource_subtype === "enum"
+                  {field.resource_subtype === 'enum'
                     ? field.enum_options?.map((option) => {
                         return (
                           <Form.Dropdown.Item
                             key={option.gid}
                             title={option.name}
                             value={option.gid}
-                            icon={{ source: Icon.Circle, tintColor: asanaToRaycastColor(option.color) }}
+                            icon={{
+                              source: Icon.Circle,
+                              tintColor: asanaToRaycastColor(option.color),
+                            }}
                           />
                         );
                       })
@@ -219,9 +244,14 @@ export default function CreateTaskForm(props: {
               );
             }
 
-            if (field.resource_subtype === "text" || field.resource_subtype === "number") {
+            if (field.resource_subtype === 'text' || field.resource_subtype === 'number') {
               return (
-                <Form.TextField id={`field-${field.gid}`} key={field.gid} title={field.name} placeholder={field.name} />
+                <Form.TextField
+                  id={`field-${field.gid}`}
+                  key={field.gid}
+                  title={field.name}
+                  placeholder={field.name}
+                />
               );
             }
           })

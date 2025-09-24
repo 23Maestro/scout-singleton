@@ -1,6 +1,6 @@
-import { Color } from "@raycast/api";
-import { Project } from "../api/projects";
-import { asanaToRaycastColor } from "./colors";
+import { Color } from '@raycast/api';
+import { Project } from '../api/projects';
+import { asanaToRaycastColor } from './colors';
 
 export function getProjectIcon(project: Project) {
   return {

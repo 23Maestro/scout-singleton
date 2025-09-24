@@ -6,7 +6,7 @@ export interface YouTubeVideoMetadata {
   description: string;
   tags: string[];
   categoryId: string;
-  privacy: "public" | "private" | "unlisted";
+  privacy: 'public' | 'private' | 'unlisted';
 }
 
 export interface VideoUploadResult {
@@ -18,18 +18,18 @@ export interface VideoUploadResult {
 
 export async function uploadVideoToYouTube(
   videoFile: string,
-  metadata: YouTubeVideoMetadata
+  metadata: YouTubeVideoMetadata,
 ): Promise<VideoUploadResult> {
   // Placeholder for YouTube upload logic
-  console.log("Would upload video to YouTube:", { videoFile, metadata });
-  
+  console.log('Would upload video to YouTube:', { videoFile, metadata });
+
   // TODO: Integrate with YouTube Data API v3
   // - Handle OAuth authentication
   // - Upload video file
   // - Set metadata (title, description, tags)
   // - Return video ID and URL
-  
-  throw new Error("YouTube upload not implemented yet");
+
+  throw new Error('YouTube upload not implemented yet');
 }
 
 export function generateVideoTitle(params: {
@@ -63,17 +63,17 @@ export async function getVideoStatus(videoId: string): Promise<{
   privacyStatus: string;
 }> {
   // Placeholder for video status check
-  console.log("Would check YouTube video status for:", videoId);
-  
-  throw new Error("YouTube status check not implemented yet");
+  console.log('Would check YouTube video status for:', videoId);
+
+  throw new Error('YouTube status check not implemented yet');
 }
 
 export async function updateVideoMetadata(
   videoId: string,
-  metadata: Partial<YouTubeVideoMetadata>
+  metadata: Partial<YouTubeVideoMetadata>,
 ): Promise<void> {
   // Placeholder for video metadata update
-  console.log("Would update YouTube video metadata:", { videoId, metadata });
-  
-  throw new Error("YouTube metadata update not implemented yet");
+  console.log('Would update YouTube video metadata:', { videoId, metadata });
+
+  throw new Error('YouTube metadata update not implemented yet');
 }

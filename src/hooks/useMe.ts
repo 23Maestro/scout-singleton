@@ -1,6 +1,6 @@
-import { useCachedPromise } from "@raycast/utils";
-import { getMe } from "../api/users";
-import { handleUseCachedPromiseError } from "../helpers/errors";
+import { useCachedPromise } from '@raycast/utils';
+import { getMe } from '../api/users';
+import { handleUseCachedPromiseError } from '../helpers/errors';
 
 export function useMe() {
   return useCachedPromise(getMe, [], {

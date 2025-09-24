@@ -1,9 +1,9 @@
-import React from "react";
-import { Form, ActionPanel, Action, showToast, Toast, LaunchProps } from "@raycast/api";
-import { useForm, FormValidation } from "@raycast/utils";
-import { exec } from "child_process";
-import { promisify } from "util";
-import path from "path";
+import React from 'react';
+import { Form, ActionPanel, Action, showToast, Toast, LaunchProps } from '@raycast/api';
+import { useForm, FormValidation } from '@raycast/utils';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import path from 'path';
 
 const execAsync = promisify(exec);
 
@@ -14,79 +14,83 @@ interface VideoUpdateFormValues {
   videoType: string;
 }
 
-export default function VideoUpdatesCommand(props: LaunchProps<{ draftValues: VideoUpdateFormValues }>) {
+export default function VideoUpdatesCommand(
+  props: LaunchProps<{ draftValues: VideoUpdateFormValues }>,
+) {
   const { handleSubmit, itemProps, reset, focus } = useForm<VideoUpdateFormValues>({
     async onSubmit(formValues) {
       const toast = await showToast({
         style: Toast.Style.Animated,
-        title: "Processing video update...",
+        title: 'Processing video update...',
       });
 
       try {
-        const pythonInterpreter = "python3";
+        const pythonInterpreter = 'python3';
         // Updated to use current workspace scripts directory
         const workspaceDir = process.cwd();
-        const scriptPath = path.join(workspaceDir, "scripts", "video_updates.py");
+        const scriptPath = path.join(workspaceDir, 'scripts', 'video_updates.py');
 
         const escapeShellArg = (str: string) => `"${str.replace(/"/g, '\\"')}"`;
 
         const command = `${escapeShellArg(pythonInterpreter)} ${escapeShellArg(scriptPath)} --athlete_name ${escapeShellArg(formValues.athleteName)} --youtube_link ${escapeShellArg(formValues.youtubeLink)} --season ${escapeShellArg(formValues.season)} --video_type ${escapeShellArg(formValues.videoType)}`;
 
         await toast.show();
-        toast.title = "Running Python automation...";
-        toast.message = "Opening browser to update profile. This may take a moment...";
+        toast.title = 'Running Python automation...';
+        toast.message = 'Opening browser to update profile. This may take a moment...';
 
-        console.log("Executing command:", command);
+        console.log('Executing command:', command);
         const { stdout, stderr } = await execAsync(command);
 
-        console.log("Python script stdout:", stdout);
+        console.log('Python script stdout:', stdout);
 
-        if (stderr && stderr.includes("ERROR")) {
-          console.error("Python script stderr:", stderr);
+        if (stderr && stderr.includes('ERROR')) {
+          console.error('Python script stderr:', stderr);
           toast.style = Toast.Style.Failure;
-          toast.title = "Automation Error";
-          toast.message = stderr.substring(0, 200) + (stderr.length > 200 ? "..." : "");
+          toast.title = 'Automation Error';
+          toast.message = stderr.substring(0, 200) + (stderr.length > 200 ? '...' : '');
           return;
         }
 
-        if (stdout.includes("--- VIDEO UPDATE AND EMAIL AUTOMATION COMPLETED SUCCESSFULLY ---")) {
+        if (stdout.includes('--- VIDEO UPDATE AND EMAIL AUTOMATION COMPLETED SUCCESSFULLY ---')) {
           toast.style = Toast.Style.Success;
-          toast.title = "Video Updated & Email Sent";
-          toast.message = "The video has been added to the athlete's profile and 'Editing Done' email has been sent.";
+          toast.title = 'Video Updated & Email Sent';
+          toast.message =
+            "The video has been added to the athlete's profile and 'Editing Done' email has been sent.";
           reset();
-        } else if (stdout.includes("--- VIDEO UPDATE SUCCESSFUL BUT EMAIL AUTOMATION FAILED ---")) {
+        } else if (stdout.includes('--- VIDEO UPDATE SUCCESSFUL BUT EMAIL AUTOMATION FAILED ---')) {
           toast.style = Toast.Style.Success;
-          toast.title = "Video Updated";
-          toast.message = "Video added successfully, but email automation failed. Check logs for details.";
+          toast.title = 'Video Updated';
+          toast.message =
+            'Video added successfully, but email automation failed. Check logs for details.';
           reset();
         } else if (
-          stdout.includes("--- Video Update Script Finished") ||
-          stdout.includes("--- VIDEO UPDATE PROCESS COMPLETED SUCCESSFULLY ---")
+          stdout.includes('--- Video Update Script Finished') ||
+          stdout.includes('--- VIDEO UPDATE PROCESS COMPLETED SUCCESSFULLY ---')
         ) {
           toast.style = Toast.Style.Success;
-          toast.title = "Video Updated Successfully";
+          toast.title = 'Video Updated Successfully';
           toast.message = "The video has been added to the athlete's profile.";
           reset();
         } else {
           toast.style = Toast.Style.Failure;
-          toast.title = "Video Update May Have Failed";
-          toast.message = "Check the console logs for details.";
+          toast.title = 'Video Update May Have Failed';
+          toast.message = 'Check the console logs for details.';
         }
       } catch (error: unknown) {
-        console.error("Execution error:", error);
+        console.error('Execution error:', error);
         toast.style = Toast.Style.Failure;
-        toast.title = "Failed to Run Automation";
+        toast.title = 'Failed to Run Automation';
         if (error instanceof Error) {
-          toast.message = error.message || "An unexpected error occurred.";
+          toast.message = error.message || 'An unexpected error occurred.';
         } else {
-          toast.message = "An unexpected error occurred.";
+          toast.message = 'An unexpected error occurred.';
         }
-        if (typeof error === "object" && error !== null) {
-          if ("stdout" in error && (error as { stdout: unknown }).stdout) {
-            console.error("Error stdout:", (error as { stdout: unknown }).stdout);
+        if (typeof error === 'object' && error !== null) {
+          if ('stdout' in error && (error as { stdout: unknown }).stdout) {
+            console.error('Error stdout:', (error as { stdout: unknown }).stdout);
           }
-          if ("stderr" in error && (error as { stderr: unknown }).stderr) {
-            console.error("Error stderr:", (error as { stderr: unknown }).stderr);
+          if ('stderr' in error && (error as { stderr: unknown }).stderr) {
+            console.error('Error stderr:', (error as { stderr: unknown }).stderr);
           }
         }
       }
@@ -94,9 +98,12 @@ export default function VideoUpdatesCommand(props: LaunchProps<{ draftValues: Vi
     validation: {
       athleteName: FormValidation.Required,
       youtubeLink: (value) => {
-        if (!value) return "The item is required";
-        if (!value.startsWith("https://www.youtube.com/") && !value.startsWith("https://youtu.be/")) {
-          return "Please enter a valid YouTube link (e.g., https://www.youtube.com/watch?v=... or https://youtu.be/...)";
+        if (!value) return 'The item is required';
+        if (
+          !value.startsWith('https://www.youtube.com/') &&
+          !value.startsWith('https://youtu.be/')
+        ) {
+          return 'Please enter a valid YouTube link (e.g., https://www.youtube.com/watch?v=... or https://youtu.be/...)';
         }
         return undefined;
       },
@@ -104,10 +111,10 @@ export default function VideoUpdatesCommand(props: LaunchProps<{ draftValues: Vi
       videoType: FormValidation.Required,
     },
     initialValues: props.draftValues || {
-      athleteName: "",
-      youtubeLink: "",
-      season: "Junior Season",
-      videoType: "Highlights",
+      athleteName: '',
+      youtubeLink: '',
+      season: 'Junior Season',
+      videoType: 'Highlights',
     },
   });
 
@@ -119,13 +126,13 @@ export default function VideoUpdatesCommand(props: LaunchProps<{ draftValues: Vi
           <Action.SubmitForm title="Submit and Run Automation" onSubmit={handleSubmit} />
           <Action
             title="Focus Athlete Name"
-            onAction={() => focus("athleteName")}
-            shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
+            onAction={() => focus('athleteName')}
+            shortcut={{ modifiers: ['cmd', 'shift'], key: 'a' }}
           />
           <Action
             title="Focus Youtube Link"
-            onAction={() => focus("youtubeLink")}
-            shortcut={{ modifiers: ["cmd", "shift"], key: "y" }}
+            onAction={() => focus('youtubeLink')}
+            shortcut={{ modifiers: ['cmd', 'shift'], key: 'y' }}
           />
         </ActionPanel>
       }

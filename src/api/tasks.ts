@@ -1,5 +1,5 @@
-import { request } from "./request";
-import { Project } from "./projects";
+import { request } from './request';
+import { Project } from './projects';
 
 type UserTaskList = {
   gid: string;
@@ -46,14 +46,14 @@ export type Task = {
 };
 
 const taskFields =
-  "id,name,due_on,due_at,start_on,completed,projects.name,projects.color,assignee_section.name,permalink_url,custom_fields,assignee.name";
+  'id,name,due_on,due_at,start_on,completed,projects.name,projects.color,assignee_section.name,permalink_url,custom_fields,assignee.name';
 
 export async function getMyTasks(workspace: string, showCompletedTasks: boolean) {
   const {
     data: {
       data: { gid: userTaskListId },
     },
-  } = await request<{ data: UserTaskList }>("/users/me/user_task_list", {
+  } = await request<{ data: UserTaskList }>('/users/me/user_task_list', {
     params: {
       workspace,
     },
@@ -64,7 +64,7 @@ export async function getMyTasks(workspace: string, showCompletedTasks: boolean)
   } = await request<{ data: Task[] }>(`/user_task_lists/${userTaskListId}/tasks`, {
     params: {
       opt_fields: taskFields,
-      ...(showCompletedTasks ? {} : { completed_since: "now" }),
+      ...(showCompletedTasks ? {} : { completed_since: 'now' }),
     },
   });
 
@@ -96,8 +96,8 @@ type TaskPayload = {
 }>;
 
 export async function createTask(payload: TaskPayload) {
-  const { data } = await request<{ data: Task }>("/tasks", {
-    method: "POST",
+  const { data } = await request<{ data: Task }>('/tasks', {
+    method: 'POST',
     data: { data: payload },
   });
 
@@ -113,7 +113,7 @@ type UpdateTaskPayload = Partial<{
 
 export async function updateTask(taskId: string, payload: UpdateTaskPayload) {
   const { data } = await request<{ data: Task }>(`/tasks/${taskId}`, {
-    method: "PUT",
+    method: 'PUT',
     data: { data: payload },
   });
 
@@ -122,6 +122,6 @@ export async function updateTask(taskId: string, payload: UpdateTaskPayload) {
 
 export async function deleteTask(taskId: string) {
   await request<{ data: Task }>(`/tasks/${taskId}`, {
-    method: "DELETE",
+    method: 'DELETE',
   });
 }

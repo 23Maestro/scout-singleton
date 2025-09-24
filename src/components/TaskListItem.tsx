@@ -1,10 +1,10 @@
-import { List, Icon, ActionPanel, Action } from "@raycast/api";
-import { getAvatarIcon, MutatePromise } from "@raycast/utils";
-import { format } from "date-fns";
-import { Task } from "../api/tasks";
-import { getTaskSubtitle } from "../helpers/task";
-import TaskActions from "./TaskActions";
-import TaskDetail from "./TaskDetail";
+import { List, Icon, ActionPanel, Action } from '@raycast/api';
+import { getAvatarIcon, MutatePromise } from '@raycast/utils';
+import { format } from 'date-fns';
+import { Task } from '../api/tasks';
+import { getTaskSubtitle } from '../helpers/task';
+import TaskActions from './TaskActions';
+import TaskDetail from './TaskDetail';
 
 type TaskListItemProps = {
   task: Task;
@@ -17,8 +17,8 @@ export default function TaskListItem({ task, workspace, mutateList }: TaskListIt
 
   const accessories: List.Item.Accessory[] = [
     {
-      icon: task.assignee ? getAvatarIcon(task.assignee.name || "") : Icon.Person,
-      tooltip: task.assignee ? `Assignee: ${task.assignee?.name}` : "Unassigned",
+      icon: task.assignee ? getAvatarIcon(task.assignee.name || '') : Icon.Person,
+      tooltip: task.assignee ? `Assignee: ${task.assignee?.name}` : 'Unassigned',
     },
   ];
 
@@ -30,7 +30,7 @@ export default function TaskListItem({ task, workspace, mutateList }: TaskListIt
     const dueOn = new Date(task.due_on);
     accessories.unshift({
       date: dueOn,
-      tooltip: `Due Date: ${format(dueOn, "d MMM yyyy")}`,
+      tooltip: `Due Date: ${format(dueOn, 'd MMM yyyy')}`,
     });
   }
 

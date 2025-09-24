@@ -1,4 +1,4 @@
-import { request } from "./request";
+import { request } from './request';
 
 export type User = {
   gid: string;
@@ -6,13 +6,13 @@ export type User = {
 };
 
 export async function getMe() {
-  const { data } = await request<{ data: User }>("/users/me");
+  const { data } = await request<{ data: User }>('/users/me');
 
   return data.data;
 }
 
 export async function getUsers(workspace: string) {
-  const { data } = await request<{ data: User[] }>("/users", {
+  const { data } = await request<{ data: User[] }>('/users', {
     params: {
       workspace,
     },

@@ -1,6 +1,6 @@
-import { OAuthService, getAccessToken, withAccessToken } from "@raycast/utils";
+import { OAuthService, getAccessToken, withAccessToken } from '@raycast/utils';
 
-const asana = OAuthService.asana({ scope: "default" });
+const asana = OAuthService.asana({ scope: 'default' });
 
 export default function withAsanaAuth(Component: React.ComponentType) {
   return withAccessToken(asana)(Component);

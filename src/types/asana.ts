@@ -31,7 +31,7 @@ export interface AsanaProject {
 export interface AsanaCustomField {
   gid: string;
   name: string;
-  type: "text" | "number" | "enum" | "date" | "people";
+  type: 'text' | 'number' | 'enum' | 'date' | 'people';
   text_value?: string;
   number_value?: number;
   enum_value?: AsanaEnumValue;

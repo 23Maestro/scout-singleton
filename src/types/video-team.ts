@@ -18,7 +18,7 @@ export interface NPIDPlayer {
   gpa?: number;
   sat_score?: number;
   act_score?: number;
-  payment_status: "Paid" | "Unpaid" | "Unknown";
+  payment_status: 'Paid' | 'Unpaid' | 'Unknown';
   created_at: string;
   updated_at: string;
 }
@@ -32,7 +32,7 @@ export interface NPIDInboxMessage {
   sport: string;
   class_year: string;
   received_at: string;
-  status: "unassigned" | "assigned" | "completed";
+  status: 'unassigned' | 'assigned' | 'completed';
   assigned_to?: string;
   video_links?: string[];
   attachments?: NPIDAttachment[];
@@ -93,7 +93,7 @@ export interface DropboxFolder {
 }
 
 export interface VideoDeliverable {
-  type: "highlight_reel" | "skills_video" | "game_film" | "recruiting_video";
+  type: 'highlight_reel' | 'skills_video' | 'game_film' | 'recruiting_video';
   title: string;
   duration_seconds: number;
   file_size_mb: number;
