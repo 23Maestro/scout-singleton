@@ -1,5 +1,5 @@
-export type TaskStage = "On Hold" | "Awaiting Client" | "In Queue" | "Done" | "Unknown";
-export type TaskStatus = "Revisions" | "HUDL" | "Dropbox" | "External Links" | "Not Approved" | "Unknown";
+export type TaskStage = "On Hold" | "Awaiting Client" | "In Queue" | "Done" |;
+export type TaskStatus = "Revisions" | "HUDL" | "Dropbox" | "External Links" | "Not Approved" |;
 
 export interface VideoTask {
   id: string;                 // Asana task gid
@@ -23,4 +23,5 @@ export interface VideoTask {
   highSchool?: string;
   positions?: string;
   paymentStatus?: "Paid" | "Unpaid" | "Unknown";
+  profileUrl?: string;           // Player profile URL
 }

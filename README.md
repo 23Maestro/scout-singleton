@@ -16,6 +16,7 @@ Video editing workflow automation for student athletes. This extension consolida
 - **Asana**: Connects to 'ID Tasks' project with custom fields (Sport, Class, PlayerID, Stage, Status, Positions)
 - **NPID API**: Integrates with National Prospect ID for inbox management and status updates
 - **Selenium**: Automates player profile lookups and data extraction
+- **MCP (Model Context Protocol)**: Docker Compose stacks for both NPID and the official OAuth-backed Asana MCP server live under `scout-mcp-servers/`
 
 ## Setup
 
@@ -40,7 +41,7 @@ Video editing workflow automation for student athletes. This extension consolida
 
 3. Configure NPID API:
    - Add NPID API key in extension preferences
-   - Set base URL (default: https://api.nationalprospectid.com)
+   - Set base URL (default: https://dashboard.nationalpid.com)
 
 ### Development
 
@@ -104,6 +105,71 @@ The extension expects these custom fields in the Asana 'ID Tasks' project:
 - `GET /videoteammsg/inbox` - Fetch inbox messages
 - `POST /videoteammsg/inbox/assign` - Assign message to user
 - `PATCH /videoteammsg/videoprogress/:playerId` - Update progress
+
+### MCP Tools Available
+
+#### Asana MCP Tools
+- `asana_create_task` - Create a new task in a project
+- `asana_update_task` - Update an existing task's details
+- `asana_get_task` - Get detailed information about a specific task
+- `asana_search_tasks` - Search tasks in a workspace with advanced filtering
+- `asana_list_workspaces` - List all available workspaces
+- `asana_get_project` - Get detailed information about a specific project
+
+#### NPID MCP Tools
+- `get_inbox_threads` - Fetch video team inbox messages
+- `get_thread_details` - Get detailed thread information including email content
+- `get_assignment_modal_data` - Get assignment modal data with available editors
+- `assign_thread` - Assign inbox thread to user with status and stage
+
+## Raycast MCP Integration
+
+This extension uses the Raycast MCP Builder patterns for seamless integration:
+
+### MCP Client Usage
+
+```typescript
+import { callNPIDToolWithFeedback } from './src/bridge/mcpClient';
+
+// Call MCP tools with user feedback
+const result = await callNPIDToolWithFeedback(
+  'get_inbox_threads',
+  { limit: '10' },
+  {
+    loadingMessage: 'Fetching inbox...',
+    successMessage: 'Inbox loaded successfully',
+    errorMessage: 'Failed to load inbox'
+  }
+);
+```
+
+### Docker MCP Servers
+
+The extension includes Docker-based MCP servers for both NPID and Asana:
+
+```bash
+# Start MCP servers
+cd scout-mcp-servers
+docker compose up -d
+
+# Check server status
+docker compose ps
+```
+
+### Environment Configuration
+
+Create a `.env` file in `scout-mcp-servers/` with:
+
+```env
+# NPID Configuration
+NPID_XSRF_TOKEN=your_token_here
+NPID_SESSION=your_session_here
+NPID_BASE_URL=https://dashboard.nationalpid.com
+
+# Asana Configuration
+ASANA_CLIENT_ID=your_client_id
+ASANA_CLIENT_SECRET=your_client_secret
+```
 
 ## License
 

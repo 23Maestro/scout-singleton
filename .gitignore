@@ -1,2 +1,4 @@
 raycast-env.d.ts
 node_modules/
+.env
+scout-mcp-servers/.env

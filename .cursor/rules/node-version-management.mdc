@@ -1,0 +1,106 @@
+---
+alwaysApply: true
+description: Node.js version management and compatibility rules
+---
+
+# Node.js Version Management
+
+## Default Node.js Version Policy
+
+**CRITICAL**: Always use Node.js v22.16.0 or higher system-wide unless specifically requested otherwise.
+
+### Version Requirements
+- **Minimum**: Node.js v20.0.0 (for modern packages)
+- **Recommended**: Node.js v22.16.0+ (for full compatibility)
+- **Current System**: v22.16.0 via nvm
+
+### Environment Management
+
+#### NVM Usage
+```bash
+# Check current version
+node --version
+
+# Use correct version
+nvm use 22.16.0
+
+# Set as default
+nvm alias default 22.16.0
+```
+
+#### Shell Configuration
+Ensure your shell profile (`.zshrc`, `.bashrc`) includes:
+```bash
+# Load nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# Auto-use Node.js v22.16.0
+nvm use 22.16.0 2>/dev/null || nvm install 22.16.0
+```
+
+### Package Compatibility
+
+#### Known Issues
+- **Gemini CLI**: Requires Node.js v20+ (currently failing on v18.17.0)
+- **Modern packages**: Many require Node.js v18.19.0+ or v20+
+- **Undici**: Web API compatibility issues on older Node.js versions
+
+#### Version Override Protocol
+Only change Node.js version when:
+1. **Explicitly requested** by user via verbal request
+2. **Specific CLI command** provided by user
+3. **Legacy project** requires older version (document reason)
+
+### Troubleshooting
+
+#### Version Mismatch Symptoms
+- `ReferenceError: File is not defined` (undici/webidl issues)
+- `EBADENGINE` warnings during npm install
+- Package installation failures
+- Runtime errors in modern packages
+
+#### Resolution Steps
+1. Check current version: `node --version`
+2. Switch to correct version: `nvm use 22.16.0`
+3. Verify shell profile configuration
+4. Restart terminal session
+5. Reinstall problematic packages if needed
+
+### Project-Specific Configuration
+
+#### .nvmrc Files
+Create `.nvmrc` in project root:
+```
+22.16.0
+```
+
+#### Package.json Engines
+Ensure [package.json](mdc:package.json) specifies:
+```json
+{
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
+```
+
+### Integration with Development Tools
+
+#### Cursor IDE
+- Terminal sessions should inherit correct Node.js version
+- Extensions should use system Node.js version
+- Debugging should work with correct runtime
+
+#### Raycast Extension
+- Build process requires Node.js v20+
+- Development mode needs compatible runtime
+- Package installation should use correct version
+
+### Emergency Override
+If Node.js version must be changed temporarily:
+1. Document the reason
+2. Use `nvm use <version>` for session
+3. Revert with `nvm use 22.16.0` after task
+4. Update this rule if permanent change needed

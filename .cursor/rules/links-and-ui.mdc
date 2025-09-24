@@ -1,6 +1,5 @@
 ---
-alwaysApply: true
-globs: *.tsx
+alwaysApply: false
 ---
 ### UI conventions
 

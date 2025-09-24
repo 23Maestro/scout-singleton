@@ -5,7 +5,7 @@ import { VideoTask, TaskStage, TaskStatus } from "./types/workflow";
 import { pushTimelinesToWebsite, backfillMetadataToAsana } from "./utils/enrich-runner";
 import { findPlayerIdsByName } from "./utils/player-resolver";
 import { formatDistanceToNow } from "date-fns";
-import { request } from "./api/request";
+import { callAsanaTool } from "./bridge/mcpClient";
 
 function getStatusIcon(status: TaskStatus): Icon {
   switch (status) {
@@ -227,7 +227,7 @@ function TaskDetail({ task, onBack }: { task: VideoTask; onBack: () => void }) {
 }
 
 export default function ActiveTasks() {
-  const { tasks, groupedByStage, isLoading } = useAsanaVideoTasks();
+  const { tasks, isLoading } = useAsanaVideoTasks();
   const [searchText, setSearchText] = useState("");
   const [selectedTask, setSelectedTask] = useState<VideoTask | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -248,8 +248,6 @@ export default function ActiveTasks() {
     return matchesSearch && matchesStatus;
   });
 
-  // Get unique statuses for filter (excluding "In Progress" as requested)
-  const uniqueStatuses = Array.from(new Set(tasks.map(task => task.status).filter(Boolean)));
 
   // Group filtered tasks by stage
   const filteredGroupedByStage: Record<TaskStage, VideoTask[]> = {
@@ -337,8 +335,12 @@ export default function ActiveTasks() {
                         icon={Icon.CheckCircle}
                         onAction={async () => {
                           try {
-                            await request(`/tasks/${task.id}`, { method: "PUT", data: { data: { completed: true } } });
-                            await showToast({ style: Toast.Style.Success, title: "Task Completed" });
+                            const response = await callAsanaTool("asana_update_task", { task_id: task.id, completed: true });
+                            if (response.success) {
+                              await showToast({ style: Toast.Style.Success, title: "Task Completed" });
+                            } else {
+                              throw new Error(response.error || "Failed to complete task");
+                            }
                           } catch (e) {
                             await showToast({ style: Toast.Style.Failure, title: "Failed to complete" });
                           }
@@ -349,8 +351,12 @@ export default function ActiveTasks() {
                         icon={Icon.AddPerson}
                         onAction={async () => {
                           try {
-                            await request(`/tasks/${task.id}`, { method: "PUT", data: { data: { assignee: "me" } } });
-                            await showToast({ style: Toast.Style.Success, title: "Assigned to you" });
+                            const response = await callAsanaTool("asana_update_task", { task_id: task.id, assignee: "Jerami Singleton" });
+                            if (response.success) {
+                              await showToast({ style: Toast.Style.Success, title: "Assigned to you" });
+                            } else {
+                              throw new Error(response.error || "Failed to assign task");
+                            }
                           } catch {
                             await showToast({ style: Toast.Style.Failure, title: "Failed to assign" });
                           }
@@ -363,8 +369,12 @@ export default function ActiveTasks() {
                         onChange={async (date) => {
                           try {
                             const dateStr = date ? date.toISOString().split("T")[0] : null;
-                            await request(`/tasks/${task.id}`, { method: "PUT", data: { data: { due_on: dateStr } } });
-                            await showToast({ style: Toast.Style.Success, title: "Due date updated" });
+                            const response = await callAsanaTool("asana_update_task", { task_id: task.id, due_on: dateStr });
+                            if (response.success) {
+                              await showToast({ style: Toast.Style.Success, title: "Due date updated" });
+                            } else {
+                              throw new Error(response.error || "Failed to set due date");
+                            }
                           } catch {
                             await showToast({ style: Toast.Style.Failure, title: "Failed to set due date" });
                           }

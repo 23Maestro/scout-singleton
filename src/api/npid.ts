@@ -18,6 +18,18 @@ export interface InboxMessage {
   createdAt: string;
   status: "unassigned" | "assigned" | "completed";
   assignedTo?: string;
+  // Additional fields for email thread processing
+  email?: string;
+  content?: string;
+  messageId?: string;
+  contactId?: string;
+  isAssigned?: boolean;
+  receivedAt?: string;
+  profileImage?: string;
+  // Smart filtering fields
+  hasContactId?: boolean;
+  isFromParent?: boolean;
+  playerIdFromUrl?: string;
 }
 
 export interface VideoProgress {

@@ -1,4 +1,4 @@
-import { spawn } from "child_process";
+import { exec } from "child_process";
 import path from "path";
 
 export interface SeleniumSearchResult {
@@ -10,41 +10,53 @@ export interface SeleniumSearchResult {
   city?: string;
   state?: string;
   highSchool?: string;
-  positions?: string;
+  positions?: string[];
+}
+
+interface PythonSearchResult {
+  player_id?: string;
+  profile_url?: string;
+  athlete_name?: string;
+  name?: string;
+  sport?: string;
+  grad_year?: string;
+  class_of?: string;
+  city?: string;
+  state?: string;
+  high_school?: string;
+  positions?: string[];
 }
 
 export async function runSeleniumPlayerSearch(athleteName: string): Promise<SeleniumSearchResult[]> {
   return new Promise((resolve, reject) => {
-    // Use absolute path to the Python script - hardcoded to workspace
-    const scriptPath = "/Users/singleton23/Raycast/scout-singleton/scripts/extract_video_progress.py";
+    // Use relative path to the Python script from the project root
+    const scriptPath = path.join(__dirname, "..", "..", "scripts", "extract_video_progress.py");
     
-    const pythonProcess = spawn("/usr/bin/python3", [scriptPath, "--athlete_name", athleteName], {
-      stdio: ["pipe", "pipe", "pipe"],
-    });
-
-    let output = "";
-    let errorOutput = "";
-
-    pythonProcess.stdout.on("data", (data) => {
-      output += data.toString();
-    });
-
-    pythonProcess.stderr.on("data", (data) => {
-      errorOutput += data.toString();
-    });
-
-    pythonProcess.on("close", (code) => {
-      if (code !== 0) {
-        reject(new Error(`Selenium script failed: ${errorOutput}`));
+    const command = `"/Library/Frameworks/Python.framework/Versions/3.13/bin/python3" "${scriptPath}" --athlete_name "${athleteName}"`;
+    console.log("🔍 Player search command:", command);
+    
+    exec(command, {
+      env: {
+        ...process.env,
+        PATH: "/Library/Frameworks/Python.framework/Versions/3.13/bin:" + process.env.PATH,
+        PYTHON_PATH: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3"
+      }
+    }, (error, stdout, stderr) => {
+      if (error) {
+        console.error("❌ Python player search error:", error);
+        reject(new Error(`Python player search failed: ${error.message}`));
         return;
       }
-
+      
+      if (stderr) {
+        console.error("❌ Python player search stderr:", stderr);
+      }
+      
       try {
-        // Parse the JSON output from the Python script
-        const results = JSON.parse(output);
+        const results = JSON.parse(stdout);
         
         // Map the results to our interface
-        const mappedResults: SeleniumSearchResult[] = results.map((result: any) => ({
+        const mappedResults: SeleniumSearchResult[] = results.map((result: PythonSearchResult) => ({
           playerId: result.player_id,
           profileUrl: result.profile_url,
           athleteName: result.athlete_name || result.name,
@@ -56,14 +68,13 @@ export async function runSeleniumPlayerSearch(athleteName: string): Promise<Sele
           positions: result.positions,
         }));
 
+        console.log("✅ Python player search success, parsed", mappedResults.length, "results");
         resolve(mappedResults);
-      } catch (error) {
-        reject(new Error(`Failed to parse Selenium script output: ${error}`));
+      } catch (parseError) {
+        console.error("❌ JSON parse error:", parseError);
+        console.error("❌ Raw output:", stdout);
+        reject(new Error(`Failed to parse JSON output: ${parseError}`));
       }
-    });
-
-    pythonProcess.on("error", (error) => {
-      reject(new Error(`Failed to start Selenium script: ${error.message}`));
     });
   });
 }
@@ -72,3 +83,61 @@ export async function runSeleniumNonHeadless(athleteName: string): Promise<Selen
   // This runs the selenium script in non-headless mode for manual intervention
   return runSeleniumPlayerSearch(athleteName);
 }
+
+export interface InboxThread {
+  thread_id: string;
+  message_id: string;
+  player_id: string;
+  subject: string;
+  player_name: string;
+  email: string;
+  content: string;
+  contactid: string;
+  is_assigned: boolean;
+  assigned_to: string | null;
+  received_at: string;
+  created_at: string;
+}
+
+export async function runSeleniumInboxExtraction(): Promise<InboxThread[]> {
+  console.log("🚀 runSeleniumInboxExtraction called!");
+  return new Promise((resolve, reject) => {
+    // Use the inbox extraction script
+    // Use absolute path to the correct inbox extraction script
+    const scriptPath = "/Users/singleton23/Raycast/scout-singleton/scripts/extract_inbox_data_fixed.py";
+    console.log("🔍 Using inbox extraction script:", scriptPath);
+    console.log("🔍 Python path: python3 (system default)");
+    
+    const command = `python3 "${scriptPath}" --headless`;
+    console.log("🔍 Command:", command);
+    
+    exec(command, {
+      env: {
+        ...process.env,
+        PATH: "/Library/Frameworks/Python.framework/Versions/3.13/bin:" + process.env.PATH,
+        PYTHON_PATH: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3"
+      }
+    }, (error, stdout, stderr) => {
+      if (error) {
+        console.error("❌ Python script error:", error);
+        reject(new Error(`Python script failed: ${error.message}`));
+        return;
+      }
+      
+      if (stderr) {
+        console.error("❌ Python script stderr:", stderr);
+      }
+      
+      try {
+        const result = JSON.parse(stdout);
+        console.log("✅ Python script success, parsed", result.length, "threads");
+        resolve(result);
+      } catch (parseError) {
+        console.error("❌ JSON parse error:", parseError);
+        console.error("❌ Raw output:", stdout);
+        reject(new Error(`Failed to parse JSON output: ${parseError}`));
+      }
+    });
+  });
+}
+

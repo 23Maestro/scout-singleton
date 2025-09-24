@@ -1,6 +1,5 @@
 ---
-alwaysApply: true
-globs: *.ts,*.tsx
+alwaysApply: false
 ---
 ### NPID domain defaults
 

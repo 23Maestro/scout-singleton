@@ -1,7 +1,6 @@
 ---
-description: GitHub workflow and Git commands for repository management
+alwaysApply: true
 ---
-
 # GitHub Workflow Guide
 
 When the user mentions "github", "git", or "push updates", they are referring to this standard workflow:

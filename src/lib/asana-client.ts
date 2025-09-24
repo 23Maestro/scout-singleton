@@ -141,7 +141,8 @@ export function useAsanaVideoTasks() {
           state: state,
           highSchool: cf(t, "High School"),
           positions: cf(t, "Positions"),
-          paymentStatus: (cf(t, "Payment Status") as "Paid" | "Unpaid" | "Unknown" | undefined) ?? "Unknown"
+          paymentStatus: (cf(t, "Payment Status") as "Paid" | "Unpaid" | "Unknown" | undefined) ?? "Unknown",
+          profileUrl: cf(t, "PlayerID") ? `https://dashboard.nationalpid.com/athlete/profile/${cf(t, "PlayerID")}` : undefined
         };
       });
 
