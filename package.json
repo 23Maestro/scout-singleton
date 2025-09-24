@@ -99,7 +99,7 @@
   },
   "devDependencies": {
     "@raycast/eslint-config": "^2.0.4",
-    "@types/lodash": "^4.14.182",
+    "@types/lodash": "^4.17.20",
     "@types/node": "22.13.10",
     "@types/react": "19.0.10",
     "eslint": "^9.22.0",
