@@ -4,7 +4,9 @@ This directory contains Docker assets for local Model Context Protocol servers u
 
 ## Services
 
-- **scout-npid-mcp** – Local MCP wrapper around the NPID APIs. Set `NPID_XSRF_TOKEN`, `NPID_SESSION`, and optionally `NPID_BASE_URL` before launching `docker compose up`.
+- **scout-npid-mcp** – Local MCP wrapper around the NPID APIs. It logs in with
+  `NPID_USERNAME` / `NPID_PASSWORD`, keeps the session alive, and writes the
+  shared token cache to the mounted `state/` directory.
 - **scout-asana-mcp** – Launches the official Asana-hosted MCP server via `mcp-remote` and performs the OAuth flow automatically.
 
 ## Environment configuration
@@ -14,7 +16,9 @@ This directory contains Docker assets for local Model Context Protocol servers u
    - `ASANA_CLIENT_SECRET` – OAuth client secret (required)
    - `ASANA_REDIRECT_URI` – Optional override if you registered a custom redirect URI (defaults to `http://localhost:3030`)
    - `ASANA_SCOPES` – Optional additional scopes passed to `mcp-remote`
-   - `NPID_XSRF_TOKEN`, `NPID_SESSION`, `NPID_BASE_URL` – Required for the NPID MCP service
+   - `NPID_USERNAME`, `NPID_PASSWORD` – Dashboard credentials used by the token manager
+   - `NPID_BASE_URL` – Optional override (defaults to the production dashboard)
+   - `NPID_TOKEN_PATH` – Optional custom location for the shared token cache (defaults to `/app/state/npid_tokens.json` inside the container)
 
 Authentication tokens issued by Asana are persisted inside the named Docker volume `asana-mcp-auth`, so you only need to approve the OAuth flow the first time.
 

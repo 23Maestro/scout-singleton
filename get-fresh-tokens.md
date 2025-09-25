@@ -1,65 +1,68 @@
-# How to Get Fresh NPID Tokens
+# NPID Token Refresh Guide
 
-## Step 1: Get Fresh Tokens from Browser
+The NPID integration now maintains its own login session. A lightweight token
+manager logs into the dashboard on a schedule (default 90 minutes), writes the
+session cookies to a shared JSON file, and keeps the session alive with
+keep-alive pings. Manual token copy/paste is no longer required once the
+service is configured.
 
-1. **Open NPID Dashboard**: Go to https://dashboard.nationalpid.com/vide've oteammsg/videomailprogress
-2. **Open Developer Tools**: Press F12 or right-click → Inspect
-3. **Go to Network Tab**: Clear existing requests
-4. **Refresh the page**: This will show the authentication requests
-5. **Find the XSRF token**: Look for any request and check the Request Headers for `X-XSRF-TOKEN`
-6. **Find the session cookie**: Look for the `Cookie` header with `myapp_session` value
+## Quick Setup
 
-## Step 2: Extract the Tokens
+1. **Create a shared state directory** (already provided as `state/` in the repo).
+2. **Configure environment variables** for the Docker compose stack or your
+   shell:
 
-From the browser developer tools, copy:
+   ```bash
+   export NPID_USERNAME="your@npid-account.com"
+   export NPID_PASSWORD="super-secret"
+   export NPID_BASE_URL="https://dashboard.nationalpid.com"
+   export NPID_TOKEN_PATH="$(pwd)/state/npid_tokens.json"
+   ```
 
-### XSRF Token
-- Look for `X-XSRF-TOKEN` in request headers
-- Copy the full token value (it's a long base64 string)
+3. **Start / restart the MCP containers**:
 
-### Session Cookie  
-- Look for `Cookie` header
-- Find the `myapp_session` value (it's a long base64 string)
+   ```bash
+   cd scout-mcp-servers
+   docker compose up -d --build
+   ```
 
-## Step 3: Update Environment Variables
+   The `scout-npid-mcp` container will perform the login immediately and then
+   refresh on the configured interval.
 
-```bash
-cd /Users/singleton23/Raycast/scout-singleton/scout-mcp-servers
+4. **Point the Raycast extension at the shared cache** (optional if running the
+   code outside Docker). The extension automatically looks for the file using
+   `NPID_TOKEN_PATH`, `state/npid_tokens.json`, then `~/.scout/npid_tokens.json`.
 
-# Edit the .env file
-nano .env
-```
+## Manual Refresh (Optional)
 
-Update these lines with your fresh tokens:
-```
-NPID_XSRF_TOKEN=YOUR_FRESH_XSRF_TOKEN_HERE
-NPID_SESSION=YOUR_FRESH_SESSION_COOKIE_HERE
-```
-
-## Step 4: Restart MCP Servers
-
-```bash
-# Stop the servers
-docker compose down
-
-# Start them again with fresh tokens
-docker compose up -d
-
-# Check if they're running
-docker ps | grep -E "(npid|asana)"
-```
-
-## Step 5: Test the Connection
-
-The inbox-check command should now work without authentication errors.
-
-## Alternative: Use Fallback Tokens
-
-If you can't get fresh tokens right now, the code has fallback tokens that might work. You can try using those by commenting out the current tokens in the .env file:
+If you need to force a refresh—for example, after changing your password—you can
+invoke the token manager directly from the host machine:
 
 ```bash
-# NPID_XSRF_TOKEN=current_expired_token
-# NPID_SESSION=current_expired_token
+python npid-mcp-server/token_manager.py
 ```
 
-The MCP servers will then use the fallback tokens from the code.
+This command logs in with the configured credentials and updates the cache file
+specified by `NPID_TOKEN_PATH`.
+
+## Verifying the Session
+
+- Inspect `state/npid_tokens.json` — it should contain `xsrf_token`,
+  `session_cookie`, and the most recent `refreshed_at` timestamp.
+- Run a simple MCP tool (`check_inbox_updates`) from Raycast or via MCP CLI to
+  confirm the requests succeed without authentication errors.
+- Check the container logs for messages from `npid-token-manager`; successful
+  refreshes and keep-alive pings are logged at INFO / DEBUG levels.
+
+## Troubleshooting
+
+- **Missing token file:** ensure the container has write access to
+  `/app/state`. The compose file mounts the host `state/` directory to that
+  location.
+- **Expired credentials:** update `NPID_USERNAME` / `NPID_PASSWORD` and run the
+  manual refresh command.
+- **Firewall or MFA prompts:** the automated login assumes username/password
+  only. Accounts protected by SSO/MFA must use an app-specific credential.
+
+Once configured, the scheduled refresh eliminates the recurring 90-minute token
+expiry and keeps the Raycast workflow operating without Selenium fallbacks.

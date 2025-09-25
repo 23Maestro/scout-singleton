@@ -1,9 +1,6 @@
 name: CI (Disabled)
-on:
-  # Disabled - using ci-custom.yml instead
-  # push:
-  #   branches: [ main, master ]
-  # pull_request:
+# Disabled - using ci-custom.yml instead
+on: []
   # workflow_dispatch:
 jobs:
   build:

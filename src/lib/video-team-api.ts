@@ -3,7 +3,6 @@ import { TaskStage, TaskStatus } from '../types/workflow';
 
 export interface WebsitePlayerData {
   player_id: string;
-  profile_url?: string;
   city?: string;
   state?: string;
   high_school?: string;
@@ -17,60 +16,30 @@ export interface WebsitePlayerData {
 }
 
 export async function fetchWebsiteRowByPlayerId(
-  playerIdOrUrl: string,
+  playerId: string,
 ): Promise<WebsitePlayerData | null> {
   try {
-    // Try multiple endpoints to find player data from video progress page
-    const endpoints = [
-      `/videoteammsg/videomailprogress/search?name=${encodeURIComponent(playerIdOrUrl)}`,
-      `/api/videoteam/progress?player_id=${encodeURIComponent(playerIdOrUrl)}`,
-      `/player/${playerIdOrUrl}`,
-      `/api/player/${playerIdOrUrl}`,
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        const response = await npidRequest(endpoint, { method: 'GET' });
-
-        if (response && (response.player_id || response.id)) {
-          return {
-            player_id: response.player_id || response.id || playerIdOrUrl,
-            profile_url: response.profile_url || response.url,
-            city: response.city,
-            state: response.state,
-            high_school: response.high_school || response.school,
-            positions: response.positions || response.position,
-            sport: response.sport,
-            class_year: response.class_year || response.grad_year || response.graduation_year,
-            payment_status: response.payment_status,
-            stage: response.stage,
-            status: response.status,
-            due_date: response.due_date,
-          };
-        }
-      } catch (error) {
-        console.log(`Failed endpoint ${endpoint}:`, error);
-        continue;
-      }
-    }
-
+    // TODO: Fix video progress endpoints - these are causing "Unauthorized" errors
+    // The video progress page needs different authentication or endpoints
+    console.log(`Would fetch video progress data for player: ${playerId}`);
+    
+    // For now, return null instead of making API calls
     return null;
   } catch (error) {
-    console.error(`Failed to fetch player data for ${playerIdOrUrl}:`, error);
+    console.error(`Failed to fetch player data for ${playerId}:`, error);
     return null;
   }
 }
 
 export async function pushStageStatusToWebsite(params: {
-  playerId?: string;
-  profileUrl?: string;
+  player_id?: string;
   stage: TaskStage;
   status: TaskStatus;
   dueOn?: string;
 }): Promise<void> {
-  const identifier = params.playerId || params.profileUrl;
+  const identifier = params.player_id;
   if (!identifier) {
-    throw new Error('Either playerId or profileUrl is required');
+    throw new Error('player_id is required');
   }
 
   // Map our internal stage/status to NPID format
@@ -78,18 +47,16 @@ export async function pushStageStatusToWebsite(params: {
   const npidStatus = mapStatusToNPID(params.status);
 
   try {
-    await npidRequest(`/videoteammsg/videoprogress/${identifier}`, {
-      method: 'PATCH',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json;charset=utf-8',
-      },
-      data: {
-        stage: npidStage,
-        status: npidStatus,
-        due_date: params.dueOn || new Date().toISOString().split('T')[0],
-      },
+    // TODO: Fix video progress endpoints - these are causing "Unauthorized" errors
+    // The video progress page needs different authentication or endpoints
+    console.log(`Would update video progress for ${identifier}:`, {
+      stage: npidStage,
+      status: npidStatus,
+      due_date: params.dueOn || new Date().toISOString().split('T')[0],
     });
+    
+    // For now, just log instead of making the API call
+    // await updateVideoProgress(identifier, { ... });
   } catch (error) {
     console.error(`Failed to push stage/status to website for ${identifier}:`, error);
     throw error;
@@ -118,6 +85,8 @@ function mapStatusToNPID(status: TaskStatus): string {
     case 'HUDL':
       return 'Review';
     case 'Dropbox':
+      return 'Approved';
+    case 'Approved':
       return 'Approved';
     case 'External Links':
       return 'Complete';

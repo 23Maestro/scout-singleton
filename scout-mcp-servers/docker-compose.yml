@@ -20,6 +20,24 @@ services:
       timeout: 10s
       retries: 3
 
+  scout-npid-mcp:
+    build:
+      context: ../npid-mcp-server
+      dockerfile: Dockerfile
+    container_name: scout-npid-mcp
+    environment:
+      - NPID_USERNAME=${NPID_USERNAME}
+      - NPID_PASSWORD=${NPID_PASSWORD}
+      - NPID_BASE_URL=${NPID_BASE_URL:-https://dashboard.nationalpid.com}
+      - NPID_REFRESH_INTERVAL_MINUTES=${NPID_REFRESH_INTERVAL_MINUTES:-90}
+      - NPID_KEEPALIVE_INTERVAL_MINUTES=${NPID_KEEPALIVE_INTERVAL_MINUTES:-20}
+      - NPID_TOKEN_PATH=/app/state/npid_tokens.json
+    volumes:
+      - ../state:/app/state
+    restart: unless-stopped
+    networks:
+      - mcp-network
+
 networks:
   mcp-network:
     driver: bridge

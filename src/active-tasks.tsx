@@ -80,14 +80,7 @@ function TaskDetail({ task, onBack }: { task: VideoTask; onBack: () => void }) {
             <Detail.Metadata.Label title="Location" text={`${task.city}, ${task.state}`} />
           )}
           {task.highSchool && <Detail.Metadata.Label title="High School" text={task.highSchool} />}
-          {task.playerId && <Detail.Metadata.Label title="Player ID" text={task.playerId} />}
-          {task.profileUrl && (
-            <Detail.Metadata.Link
-              title="Profile URL"
-              target={task.profileUrl}
-              text="View Profile"
-            />
-          )}
+          {task.player_id && <Detail.Metadata.Label title="Player ID" text={task.player_id} />}
           {task.paymentStatus && (
             <Detail.Metadata.TagList title="Payment">
               <Detail.Metadata.TagList.Item
@@ -205,13 +198,6 @@ function TaskDetail({ task, onBack }: { task: VideoTask; onBack: () => void }) {
               icon={Icon.Globe}
               shortcut={{ modifiers: ['cmd'], key: 'o' }}
             />
-            {task.profileUrl && (
-              <Action.OpenInBrowser
-                title="View Player Profile"
-                url={task.profileUrl}
-                icon={Icon.Person}
-              />
-            )}
           </ActionPanel.Section>
           <ActionPanel.Section title="Copy">
             <Action.CopyToClipboard
@@ -226,10 +212,10 @@ function TaskDetail({ task, onBack }: { task: VideoTask; onBack: () => void }) {
               icon={Icon.Link}
               shortcut={{ modifiers: ['cmd', 'shift'], key: 'c' }}
             />
-            {task.playerId && (
+            {task.player_id && (
               <Action.CopyToClipboard
                 title="Copy Player ID"
-                content={task.playerId}
+                content={task.player_id}
                 icon={Icon.Hashtag}
                 shortcut={{ modifiers: ['cmd'], key: 'i' }}
               />
@@ -254,7 +240,7 @@ export default function ActiveTasks() {
       (task.athleteName || task.taskName).toLowerCase().includes(searchLower) ||
       task.sport?.toLowerCase().includes(searchLower) ||
       task.gradYear?.toLowerCase().includes(searchLower) ||
-      task.playerId?.toLowerCase().includes(searchLower) ||
+      task.player_id?.toLowerCase().includes(searchLower) ||
       task.status.toLowerCase().includes(searchLower);
 
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
@@ -483,7 +469,7 @@ export default function ActiveTasks() {
                                 sport: task.sport,
                                 gradYear: task.gradYear,
                                 paymentStatus: task.paymentStatus,
-                                playerId: task.playerId,
+                                player_id: task.player_id,
                                 athleteName: task.athleteName,
                               };
 
@@ -530,7 +516,7 @@ export default function ActiveTasks() {
                                   t.sport,
                                   t.gradYear,
                                   t.paymentStatus,
-                                  t.playerId,
+                                  t.player_id,
                                   t.athleteName,
                                 ].filter(Boolean).length;
                                 await backfillMetadataToAsana(t);
@@ -595,13 +581,6 @@ export default function ActiveTasks() {
                           icon={Icon.Globe}
                           shortcut={{ modifiers: ['cmd'], key: 'o' }}
                         />
-                        {task.profileUrl && (
-                          <Action.OpenInBrowser
-                            title="View Player Profile"
-                            url={task.profileUrl}
-                            icon={Icon.Person}
-                          />
-                        )}
                       </ActionPanel.Section>
                       <ActionPanel.Section title="Copy">
                         <Action.CopyToClipboard
@@ -616,10 +595,10 @@ export default function ActiveTasks() {
                           icon={Icon.Link}
                           shortcut={{ modifiers: ['cmd', 'shift'], key: 'c' }}
                         />
-                        {task.playerId && (
+                        {task.player_id && (
                           <Action.CopyToClipboard
                             title="Copy Player ID"
-                            content={task.playerId}
+                            content={task.player_id}
                             icon={Icon.Hashtag}
                             shortcut={{ modifiers: ['cmd'], key: 'i' }}
                           />

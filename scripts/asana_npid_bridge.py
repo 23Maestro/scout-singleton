@@ -15,12 +15,15 @@ if __name__ == "__main__":
 # Original bridge code below for reference (inactive)
 
 # Asana API configuration
-ASANA_TOKEN = "2/1207648487940496/1208773397586807:92fc81ba3a6cb7e24cab8880173852ec"
+import os
+ASANA_TOKEN = os.environ.get("ASANA_ACCESS_TOKEN", "")
 ASANA_BASE_URL = "https://app.asana.com/api/1.0"
 DEFAULT_WAIT_TIMEOUT = 15
 
 def get_asana_tasks_without_player_ids():
     """Fetch Asana tasks that don't have PlayerID filled"""
+    if not ASANA_TOKEN:
+        raise ValueError("ASANA_ACCESS_TOKEN environment variable is required")
     headers = {"Authorization": f"Bearer {ASANA_TOKEN}"}
     
     # Get workspaces
@@ -211,6 +214,8 @@ def extract_athlete_profile_data(driver, profile_url):
 
 def update_asana_task(task_id, player_data, player_id_field_gid):
     """Update Asana task with enriched player data"""
+    if not ASANA_TOKEN:
+        raise ValueError("ASANA_ACCESS_TOKEN environment variable is required")
     headers = {
         "Authorization": f"Bearer {ASANA_TOKEN}",
         "Content-Type": "application/json"

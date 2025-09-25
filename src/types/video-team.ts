@@ -1,106 +1,160 @@
-// Video team and NPID API type definitions
+// src/types/video-team.ts
 
+import { TaskStage, TaskStatus } from './workflow';
+
+/**
+ * Represents the structure of a player's data from NPID.
+ * This is simplified to match what is used in the extension.
+ */
 export interface NPIDPlayer {
   player_id: string;
-  profile_url: string;
   athlete_name: string;
-  first_name: string;
-  last_name: string;
-  sport: string;
-  positions: string;
-  class_year: number;
   grad_year: string;
   high_school: string;
   city: string;
   state: string;
-  height?: string;
-  weight?: string;
-  gpa?: number;
-  sat_score?: number;
-  act_score?: number;
+  positions: string;
   payment_status: 'Paid' | 'Unpaid' | 'Unknown';
-  created_at: string;
-  updated_at: string;
 }
 
+/**
+ * Represents the JSON structure of a single message/thread
+ * returned by the `inbox_scraper.py` script.
+ */
 export interface NPIDInboxMessage {
+  id: string;
+  itemCode: string;
   thread_id: string;
   player_id: string;
-  player_name: string;
-  subject: string;
-  message: string;
-  sport: string;
-  class_year: string;
-  received_at: string;
-  status: 'unassigned' | 'assigned' | 'completed';
-  assigned_to?: string;
-  video_links?: string[];
-  attachments?: NPIDAttachment[];
-}
-
-export interface NPIDAttachment {
-  id: string;
-  filename: string;
-  url: string;
-  type: string;
-  size: number;
-}
-
-export interface NPIDVideoProgress {
-  id: string;
-  player_id: string;
-  player_name: string;
-  sport: string;
-  class_year: string;
-  task_name: string;
-  stage: string;
-  status: string;
-  due_date?: string;
-  assigned_to?: string;
-  created_at: string;
-  updated_at: string;
-  video_links?: string[];
-}
-
-export interface VideoTeamAssignment {
-  message_id: string;
-  thread_id: string;
-  editor_id: string;
-  stage: string;
-  status: string;
-  due_date: string;
-  notes?: string;
-}
-
-export interface VideoTeamStatusUpdate {
-  player_id: string;
-  stage: string;
-  status: string;
-  due_date?: string;
-  completion_date?: string;
-  video_links?: string[];
-  notes?: string;
-}
-
-export interface DropboxFolder {
+  contactid: string;
   name: string;
-  path: string;
-  player_id: string;
-  athlete_name: string;
-  sport: string;
-  grad_year: string;
-  created_at: string;
+  email: string;
+  subject: string;
+  content: string;
+  preview: string;
+  status: 'assigned' | 'unassigned';
+  timestamp: string;
+  timeStampDisplay: string | null;
+  timeStampIso: string | null;
+  is_reply_with_signature: boolean;
+  isUnread?: boolean;
+  stage?: string;
+  videoStatus?: string;
+  canAssign?: boolean;
+  attachments?: VideoTeamAttachment[];
+  athleteLinks?: {
+    profile: string;
+    search: string;
+    notes: string;
+  };
 }
 
-export interface VideoDeliverable {
-  type: 'highlight_reel' | 'skills_video' | 'game_film' | 'recruiting_video';
-  title: string;
-  duration_seconds: number;
-  file_size_mb: number;
-  resolution: string;
-  format: string;
-  dropbox_url?: string;
-  youtube_url?: string;
-  vimeo_url?: string;
-  created_at: string;
+export interface VideoTeamAttachment {
+  fileName: string;
+  url: string | null;
+  expiresAt: string | null;
+  downloadable: boolean;
+}
+
+export interface VideoTeamMessageDetail {
+  messageId: string;
+  itemCode: string;
+  subject: string;
+  messageHtml: string;
+  messageMarkdown: string;
+  messagePlain: string;
+  fromName: string;
+  fromEmail: string;
+  toName: string;
+  toEmail: string;
+  contactId: string;
+  videoProgressStatus: string;
+  stage: string;
+  isAssigned: boolean;
+  rawTimeStamp: string;
+  timeStampDisplay: string | null;
+  timeStampIso: string | null;
+  unreadCount: number;
+  attachments: VideoTeamAttachment[];
+  athleteLinks: {
+    profile: string;
+    search: string;
+    notes: string;
+  };
+  statusMeta: {
+    active: string;
+    lock: string;
+    clientUpdate: string;
+    lastPayment: string;
+  };
+}
+
+export type VideoTeamSearchCategory =
+  | 'athlete'
+  | 'parent'
+  | 'hs coach'
+  | 'club coach'
+  | 'college coach';
+
+export interface VideoTeamContact {
+  contactId: string;
+  athleteMainId: string | null;
+  name: string;
+  top500: string | null;
+  gradYear: string | null;
+  state: string | null;
+  sport: string | null;
+  videoEditor: string | null;
+}
+
+export interface VideoTeamAssignmentOwner {
+  value: string;
+  label: string;
+  color: string | null;
+  selected: boolean;
+}
+
+export interface VideoTeamAssignmentOption {
+  value: string;
+  label: string;
+}
+
+export interface VideoTeamAssignmentModal {
+  formToken: string;
+  messageId: string;
+  owners: VideoTeamAssignmentOwner[];
+  defaultOwner?: VideoTeamAssignmentOwner;
+  stages: VideoTeamAssignmentOption[];
+  videoStatuses: VideoTeamAssignmentOption[];
+  defaultSearchFor: VideoTeamSearchCategory;
+  contactSearchValue: string;
+}
+
+/**
+ * Represents the structure for the video progress page/Asana project.
+ */
+export interface NPIDVideoProgress {
+  id: string; // Asana Task GID
+  player_id: string;
+  player_name: string;
+  task_name: string;
+  stage: TaskStage;
+  status: TaskStatus;
+  due_date?: string;
+  assigned_to?: string;
+}
+
+/**
+ * Represents the data required for an assignment action.
+ * This is used by the assignment modal.
+ */
+export interface VideoTeamAssignment {
+  messageId: string;
+  contactId: string;
+  athleteMainId?: string | null;
+  ownerId: string;
+  stage: TaskStage;
+  status: TaskStatus;
+  dueDate?: string;
+  searchFor: VideoTeamSearchCategory;
 }

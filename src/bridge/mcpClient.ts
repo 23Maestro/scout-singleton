@@ -155,8 +155,8 @@ export async function getInboxThreads(limit = 50) {
 
   try {
     console.log('🔍 About to import selenium-runner-fixed...');
-    // Use improved Selenium runner with better error handling
-    const { runSeleniumInboxExtraction } = await import('../lib/selenium-runner-improved');
+    // Use the working Selenium runner
+    const { runSeleniumInboxExtraction } = await import('../lib/selenium-runner-fixed');
     console.log('🔍 Successfully imported runSeleniumInboxExtraction (improved version)');
 
     console.log('🔍 About to call runSeleniumInboxExtraction...');

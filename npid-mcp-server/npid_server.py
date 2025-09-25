@@ -10,6 +10,8 @@ from datetime import datetime, timezone
 import httpx
 from mcp.server.fastmcp import FastMCP
 
+from token_manager import get_token_manager
+
 # Configure logging to stderr
 logging.basicConfig(
     level=logging.INFO,
@@ -23,35 +25,7 @@ mcp = FastMCP("npid")
 
 # Configuration
 NPID_BASE_URL = os.environ.get("NPID_BASE_URL", "https://dashboard.nationalpid.com")
-NPID_XSRF_TOKEN = os.environ.get("NPID_XSRF_TOKEN", "")
-NPID_SESSION = os.environ.get("NPID_SESSION", "")
-
-# === UTILITY FUNCTIONS ===
-def get_auth_headers():
-    """Get authentication headers for NPID API calls."""
-    return {
-        "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
-        "Content-Type": "application/json;charset=UTF-8",
-        "DNT": "1",
-        "Origin": NPID_BASE_URL,
-        "Pragma": "no-cache",
-        "Referer": f"{NPID_BASE_URL}/videoteammsg/videomailprogress",
-        "Sec-Fetch-Dest": "empty",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "same-origin",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
-        "X-XSRF-TOKEN": NPID_XSRF_TOKEN,
-        "sec-ch-ua": '"Not=A?Brand";v="24", "Chromium";v="140"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"macOS"'
-    }
-
-def get_cookies():
-    """Get cookies for NPID authentication."""
-    return f"myapp_session={NPID_SESSION}; XSRF-TOKEN={NPID_XSRF_TOKEN}"
+token_manager = get_token_manager()
 
 # === MCP TOOLS ===
 
@@ -62,13 +36,13 @@ async def get_inbox_threads(limit: str = "50") -> str:
     
     try:
         limit_int = int(limit) if limit.strip() else 50
-        
-        async with httpx.AsyncClient() as client:
+        headers, cookies = token_manager.get_headers_and_cookies()
+
+        async with httpx.AsyncClient(timeout=10) as client:
             response = await client.get(
                 f"{NPID_BASE_URL}/videoteammsg/inbox",
-                headers=get_auth_headers(),
-                cookies={"myapp_session": NPID_SESSION, "XSRF-TOKEN": NPID_XSRF_TOKEN},
-                timeout=10
+                headers=headers,
+                cookies=cookies,
             )
             response.raise_for_status()
             data = response.json()
@@ -97,12 +71,13 @@ async def get_thread_details(thread_id: str = "") -> str:
     logger.info(f"Fetching thread details for {thread_id}")
     
     try:
-        async with httpx.AsyncClient() as client:
+        headers, cookies = token_manager.get_headers_and_cookies()
+
+        async with httpx.AsyncClient(timeout=10) as client:
             response = await client.get(
                 f"{NPID_BASE_URL}/videoteammsg/inbox/{thread_id}",
-                headers=get_auth_headers(),
-                cookies={"myapp_session": NPID_SESSION, "XSRF-TOKEN": NPID_XSRF_TOKEN},
-                timeout=10
+                headers=headers,
+                cookies=cookies,
             )
             response.raise_for_status()
             data = response.json()
@@ -125,12 +100,13 @@ async def get_assignment_modal_data(thread_id: str = "") -> str:
     logger.info(f"Fetching assignment modal data for {thread_id}")
     
     try:
-        async with httpx.AsyncClient() as client:
+        headers, cookies = token_manager.get_headers_and_cookies()
+
+        async with httpx.AsyncClient(timeout=10) as client:
             response = await client.get(
                 f"{NPID_BASE_URL}/videoteammsg/inbox/{thread_id}/assignprefetch",
-                headers=get_auth_headers(),
-                cookies={"myapp_session": NPID_SESSION, "XSRF-TOKEN": NPID_XSRF_TOKEN},
-                timeout=10
+                headers=headers,
+                cookies=cookies,
             )
             response.raise_for_status()
             data = response.json()
@@ -153,21 +129,22 @@ async def assign_thread(thread_id: str = "", assignee: str = "Jerami Singleton",
     logger.info(f"Assigning thread {thread_id} to {assignee} with status {status}, stage {stage}")
     
     try:
+        headers, cookies = token_manager.get_headers_and_cookies()
+        form_token = token_manager.get_form_token()
         assignment_data = {
             "thread_id": thread_id,
             "assignee": assignee,
             "status": status,
             "stage": stage,
-            "_token": NPID_XSRF_TOKEN.replace("=", "").replace("%3D", "")
+            "_token": form_token.replace("=", "").replace("%3D", "")
         }
         
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10) as client:
             response = await client.post(
                 f"{NPID_BASE_URL}/videoteammsg/inbox/assign",
-                headers=get_auth_headers(),
-                cookies={"myapp_session": NPID_SESSION, "XSRF-TOKEN": NPID_XSRF_TOKEN},
+                headers=headers,
+                cookies=cookies,
                 json=assignment_data,
-                timeout=10
             )
             response.raise_for_status()
             data = response.json()
@@ -190,6 +167,7 @@ async def search_player(query: str = "") -> str:
     logger.info(f"Searching for player: {query}")
     
     try:
+        headers, cookies = token_manager.get_headers_and_cookies()
         search_params = {
             "first_name": "",
             "last_name": "",
@@ -210,13 +188,12 @@ async def search_player(query: str = "") -> str:
             "search": query
         }
         
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10) as client:
             response = await client.get(
                 f"{NPID_BASE_URL}/videoteammsg/videoprogress",
-                headers=get_auth_headers(),
-                cookies={"myapp_session": NPID_SESSION, "XSRF-TOKEN": NPID_XSRF_TOKEN},
+                headers=headers,
+                cookies=cookies,
                 params=search_params,
-                timeout=10
             )
             response.raise_for_status()
             data = response.json()
@@ -236,6 +213,7 @@ async def get_my_assignments(assignee: str = "Jerami Singleton") -> str:
     logger.info(f"Fetching assignments for {assignee}")
     
     try:
+        headers, cookies = token_manager.get_headers_and_cookies()
         params = {
             "first_name": "",
             "last_name": "",
@@ -255,13 +233,12 @@ async def get_my_assignments(assignee: str = "Jerami Singleton") -> str:
             "video_progress_status": ""
         }
         
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10) as client:
             response = await client.get(
                 f"{NPID_BASE_URL}/videoteammsg/videoprogress",
-                headers=get_auth_headers(),
-                cookies={"myapp_session": NPID_SESSION, "XSRF-TOKEN": NPID_XSRF_TOKEN},
+                headers=headers,
+                cookies=cookies,
                 params=params,
-                timeout=10
             )
             response.raise_for_status()
             data = response.json()
@@ -281,12 +258,13 @@ async def check_inbox_updates() -> str:
     logger.info("Checking for inbox updates")
     
     try:
-        async with httpx.AsyncClient() as client:
+        headers, cookies = token_manager.get_headers_and_cookies()
+
+        async with httpx.AsyncClient(timeout=10) as client:
             response = await client.get(
                 f"{NPID_BASE_URL}/videoteammsg/inbox",
-                headers=get_auth_headers(),
-                cookies={"myapp_session": NPID_SESSION, "XSRF-TOKEN": NPID_XSRF_TOKEN},
-                timeout=10
+                headers=headers,
+                cookies=cookies,
             )
             response.raise_for_status()
             data = response.json()
@@ -324,12 +302,11 @@ async def check_inbox_updates() -> str:
 # === SERVER STARTUP ===
 if __name__ == "__main__":
     logger.info("Starting NPID Video Team MCP server...")
-    
-    # Add startup checks
-    if not NPID_XSRF_TOKEN:
-        logger.warning("NPID_XSRF_TOKEN not set - authentication may fail")
-    if not NPID_SESSION:
-        logger.warning("NPID_SESSION not set - authentication may fail")
+
+    try:
+        token_manager.get_headers_and_cookies()
+    except RuntimeError as exc:
+        logger.warning("NPID authentication is not ready: %s", exc)
     
     try:
         mcp.run(transport='stdio')

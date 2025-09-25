@@ -22,6 +22,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the server code
 COPY npid_server.py .
+COPY token_manager.py .
+
+# Directory for persisted auth tokens
+RUN mkdir -p /app/state
 
 # Create non-root user
 RUN useradd -m -u 1000 mcpuser && \

@@ -2,3 +2,6 @@ raycast-env.d.ts
 node_modules/
 .env
 scout-mcp-servers/.env
+state/*
+!state/.gitkeep
+metadata/npid_tokens.json

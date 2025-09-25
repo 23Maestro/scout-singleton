@@ -21,8 +21,8 @@ This MCP server provides a secure interface for AI assistants to manage NPID vid
 
 - Docker Desktop with MCP Toolkit enabled
 - Docker MCP CLI plugin (`docker mcp` command)
-- Valid NPID authentication (XSRF token and session cookie)
-- Access to NPID video team dashboard
+- NPID dashboard service account (username + password)
+- Optional: Raycast extension reading the shared token cache
 
 ## Installation
 
@@ -43,9 +43,15 @@ In Raycast with scout-singleton extension, you can:
 ```
 Raycast Extension → MCP Gateway → NPID MCP Server → NPID Dashboard API
                                    ↓
-                           Docker Desktop Secrets
-                           (NPID_XSRF_TOKEN, NPID_SESSION, NPID_BASE_URL)
+                         Token Manager (shared JSON cache)
+                                   ↓
+                        Scheduled login + keep-alive cron
 ```
+
+The server authenticates with the dashboard by storing a small token bundle in
+`/app/state/npid_tokens.json` (configurable via `NPID_TOKEN_PATH`). The file is
+designed to live on a shared host volume so the Raycast extension can reuse the
+same session without manual copy/paste.
 
 ## Development
 
@@ -53,9 +59,10 @@ Raycast Extension → MCP Gateway → NPID MCP Server → NPID Dashboard API
 
 ```bash
 # Set environment variables for testing
-export NPID_XSRF_TOKEN="your-xsrf-token"
-export NPID_SESSION="your-session-cookie"
+export NPID_USERNAME="your-npid-username"
+export NPID_PASSWORD="your-npid-password"
 export NPID_BASE_URL="https://dashboard.nationalpid.com"
+export NPID_TOKEN_PATH="$(pwd)/state/npid_tokens.json"
 
 # Run directly
 python npid_server.py
@@ -80,10 +87,10 @@ echo '{"jsonrpc":"2.0","method":"tools/list","id":1}' | python npid_server.py
 - Restart MCP Gateway
 
 ### Authentication Errors
-- Verify secrets with `docker mcp secret list`
-- Ensure secret names match in code and catalog
-- Check NPID dashboard for fresh tokens/cookies
-- Verify XSRF token format and session cookie validity
+- Confirm `NPID_USERNAME` / `NPID_PASSWORD` are set for the container
+- Check that the token cache file exists and is writable (`NPID_TOKEN_PATH`)
+- Inspect logs for `token-manager` messages (refresh + keepalive events)
+- Ensure the dashboard credentials are not protected by MFA/SSO prompts
 
 ## Security Considerations
 

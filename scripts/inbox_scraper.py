@@ -37,9 +37,8 @@ def build_driver(headless=True, debug=False):
     opts.add_argument("--disable-dev-shm-usage")
     opts.add_argument("--disable-blink-features=AutomationControlled")
     
-    # Use persistent profile to maintain login session
-    # (same approach as original script)
-    profile_dir = os.path.expanduser("~/selenium_chrome_profile")
+    # Use a persistent profile to maintain the login session
+    profile_dir = os.path.expanduser("~/selenium_chrome_profile_scout")
     opts.add_argument(f"--user-data-dir={profile_dir}")
     
     # Create directory if it doesn't exist
@@ -190,14 +189,113 @@ def fetch_inbox_items(driver, debug=False):
                 # Extract timestamp from third line if available
                 timestamp = lines[2].strip() if len(lines) > 2 else ""
                 
-                # Extract sport/class info if available
-                sport_info = ""
-                class_info = ""
-                for line in lines[3:6]:  # Check lines 4-6 for sport/class info
-                    if any(sport in line.lower() for sport in ['football', 'basketball', 'baseball', 'soccer', 'track']):
-                        sport_info = line.strip()
-                    elif any(year in line for year in ['2024', '2025', '2026', '2027', '2028']):
-                        class_info = line.strip()
+                # Extract content from the message
+                content = ""
+                if len(lines) > 3:
+                    # Join all lines after the first 3 (name, subject, timestamp) as content
+                    content = '\n'.join(lines[3:]).strip()
+                
+                # Detect if this is a reply with your signature
+                is_reply_with_signature = False
+                signature_indicators = [
+                    "Jerami Singleton",
+                    "Content Creator at Prospect ID",
+                    "Phone (407) 473-3637",
+                    "Email videoteam@prospectid.com",
+                    "Web www.nationalpid.com",
+                    "---- On",
+                    "wrote: ----"
+                ]
+                
+                if any(indicator in content for indicator in signature_indicators):
+                    is_reply_with_signature = True
+                    # Extract only the new message part (before your signature)
+                    signature_start = content.find("---- On")
+                    if signature_start != -1:
+                        content = content[:signature_start].strip()
+                
+                # Try to extract hidden email elements using JavaScript
+                try:
+                    # Execute JavaScript to get hidden email elements
+                    hidden_email = driver.execute_script("""
+                        var element = arguments[0];
+                        var emailSelectors = [
+                            'input[type="email"]',
+                            'input[name*="email"]',
+                            'input[id*="email"]',
+                            '.email',
+                            '[data-email]',
+                            'span[title*="@"]',
+                            'a[href^="mailto:"]'
+                        ];
+                        
+                        for (var i = 0; i < emailSelectors.length; i++) {
+                            var emailEl = element.querySelector(emailSelectors[i]);
+                            if (emailEl) {
+                                return emailEl.value || emailEl.textContent || emailEl.getAttribute('title') || emailEl.getAttribute('href')?.replace('mailto:', '');
+                            }
+                        }
+                        
+                        // Look for email patterns in hidden attributes
+                        var allElements = element.querySelectorAll('*');
+                        for (var j = 0; j < allElements.length; j++) {
+                            var el = allElements[j];
+                            var attrs = ['data-email', 'data-sender', 'data-from', 'title', 'aria-label'];
+                            for (var k = 0; k < attrs.length; k++) {
+                                var attr = el.getAttribute(attrs[k]);
+                                if (attr && attr.includes('@')) {
+                                    return attr;
+                                }
+                            }
+                        }
+                        
+                        return null;
+                    """, message_element)
+                    
+                    if hidden_email and '@' in hidden_email:
+                        # Use the extracted email as the sender name if it's more reliable
+                        if not sender_name or sender_name == f'Message {i+1}':
+                            sender_name = hidden_email
+                        
+                except Exception as e:
+                    if debug:
+                        print(f"Could not extract hidden email for message {i}: {e}", file=sys.stderr)
+                
+                # Try to extract contact ID from element attributes
+                contact_id = ""
+                try:
+                    # Look for contact ID in various attributes
+                    contact_attrs = ['data-contact-id', 'data-contactid', 'data-player-id', 'data-playerid']
+                    for attr in contact_attrs:
+                        contact_id = message_element.get_attribute(attr)
+                        if contact_id:
+                            break
+                    
+                    # If not found in attributes, try JavaScript
+                    if not contact_id:
+                        contact_id = driver.execute_script("""
+                            var element = arguments[0];
+                            var contactSelectors = [
+                                '[data-contact-id]',
+                                '[data-contactid]',
+                                '[data-player-id]',
+                                '[data-playerid]',
+                                '.contact-id',
+                                '.player-id'
+                            ];
+                            
+                            for (var i = 0; i < contactSelectors.length; i++) {
+                                var el = element.querySelector(contactSelectors[i]);
+                                if (el) {
+                                    return el.textContent || el.getAttribute('data-contact-id') || el.getAttribute('data-contactid') || el.getAttribute('data-player-id') || el.getAttribute('data-playerid');
+                                }
+                            }
+                            return null;
+                        """, message_element)
+                        
+                except Exception as e:
+                    if debug:
+                        print(f"Could not extract contact ID for message {i}: {e}", file=sys.stderr)
                 
                 # Check assignment status - look for assign button
                 is_assigned = True
@@ -216,13 +314,14 @@ def fetch_inbox_items(driver, debug=False):
                     "id": message_id,
                     "thread_id": f"thread-{message_id}",
                     "player_id": f"pid-{message_id}",
-                    "contactid": f"contact-{message_id}",
+                    "contactid": contact_id or f"contact-{message_id}",
                     "name": sender_name,
+                    "email": hidden_email or sender_name,  # Use extracted email if available
                     "subject": subject,
-                    "sport": sport_info,
-                    "class": class_info,
+                    "content": content,
                     "status": "assigned" if is_assigned else "unassigned",
                     "timestamp": timestamp,
+                    "is_reply_with_signature": is_reply_with_signature,
                     "preview": thread_text[:100] + "..." if len(thread_text) > 100 else thread_text
                 }
                 
@@ -312,7 +411,7 @@ def main():
             except:
                 pass
         
-        # Don't clean up persistent profile directory
+        # We are using a persistent profile, so we do not clean it up.
         pass
 
 if __name__ == "__main__":

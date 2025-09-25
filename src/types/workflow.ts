@@ -1,5 +1,11 @@
 export type TaskStage = 'On Hold' | 'Awaiting Client' | 'In Queue' | 'Done';
-export type TaskStatus = 'Revisions' | 'HUDL' | 'Dropbox' | 'External Links' | 'Not Approved';
+export type TaskStatus =
+  | 'Revisions'
+  | 'HUDL'
+  | 'Dropbox'
+  | 'External Links'
+  | 'Not Approved'
+  | 'Approved';
 
 export interface VideoTask {
   id: string; // Asana task gid
@@ -8,7 +14,7 @@ export interface VideoTask {
   dueOn?: string | null; // YYYY-MM-DD
 
   // Canonical keys
-  playerId?: string; // REQUIRED for sync
+  player_id?: string; // REQUIRED for sync
 
   // Stage/Status (DB = source for timelines)
   stage: TaskStage; // Video Stage (enum)
@@ -23,5 +29,4 @@ export interface VideoTask {
   highSchool?: string;
   positions?: string;
   paymentStatus?: 'Paid' | 'Unpaid' | 'Unknown';
-  profileUrl?: string; // Player profile URL
 }

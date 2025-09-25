@@ -1,8 +1,7 @@
 import { runSeleniumPlayerSearch, SeleniumSearchResult } from '../lib/selenium-runner';
 
 export interface PlayerSearchResult {
-  playerId?: string;
-  profileUrl?: string;
+  player_id?: string;
   athleteName?: string;
   sport?: string;
   gradYear?: string;
@@ -18,8 +17,7 @@ export async function findPlayerIdsByName(athleteName: string): Promise<PlayerSe
 
     // Convert SeleniumSearchResult to PlayerSearchResult
     return results.map((result: SeleniumSearchResult) => ({
-      playerId: result.playerId,
-      profileUrl: result.profileUrl,
+      player_id: result.player_id,
       athleteName: result.athleteName,
       sport: result.sport,
       gradYear: result.gradYear,

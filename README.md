@@ -40,8 +40,58 @@ Video editing workflow automation for student athletes. This extension consolida
    - Configure Asana authentication
 
 3. Configure NPID API:
-   - Add NPID API key in extension preferences
-   - Set base URL (default: https://dashboard.nationalpid.com)
+ - Provide NPID credentials (`NPID_USERNAME`, `NPID_PASSWORD`) for the token manager, or enter a manual XSRF/session pair via Raycast preferences.
+  - Ensure the token cache file (defaults to `state/npid_tokens.json`) is writable so both Docker services and Raycast can read the refreshed tokens.
+
+#### Token Refresh Helpers
+
+**One-time HAR import:**
+  ```bash
+  npm run refresh-tokens-from-har -- ~/Downloads/npid-session.har
+  ```
+This script scans a HAR export for Set-Cookie headers and hidden `_token` values, then rewrites `state/npid_tokens.json` with the refreshed trio.
+
+**Automated refresh going forward:**
+  ```bash
+  NPID_EMAIL="you@example.com" NPID_PASSWORD="secret" npm run refresh-npid-session
+  ```
+  The helper performs a clean login against `https://dashboard.nationalpid.com`, fetches `/admin/videomailbox`, and updates `state/npid_tokens.json` with an expiry ~90 minutes out.
+
+- Both scripts exit non-zero on failure, making them safe to wire into `cron` or a `launchd` plist (e.g. run `refresh-npid-session` every 75 minutes to keep tokens warm).
+
+**Automation Examples:**
+
+Cron job (every 75 minutes):
+```bash
+*/75 * * * * cd /Users/you/Raycast/scout-singleton && NPID_EMAIL=you@example.com NPID_PASSWORD=secret npm run refresh-npid-session >> ~/Library/Logs/npid-token-refresh.log 2>&1
+```
+
+Launchd plist (`~/Library/LaunchAgents/com.npid.refresh.plist`):
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+  <dict>
+    <key>Label</key><string>com.npid.refresh</string>
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/bin/env</string>
+      <string>NPID_EMAIL=you@example.com</string>
+      <string>NPID_PASSWORD=secret</string>
+      <string>/usr/local/bin/npm</string>
+      <string>run</string>
+      <string>refresh-npid-session</string>
+    </array>
+    <key>WorkingDirectory</key><string>/Users/you/Raycast/scout-singleton</string>
+    <key>StartInterval</key><integer>5400</integer>
+    <key>StandardOutPath</key><string>/Users/you/Library/Logs/npid-refresh.log</string>
+    <key>StandardErrorPath</key><string>/Users/you/Library/Logs/npid-refresh.log</string>
+  </dict>
+</plist>
+```
+
+Load with: `launchctl load ~/Library/LaunchAgents/com.npid.refresh.plist`
+
+**Requirements:** Node.js ≥18 for built-in fetch support.
 
 ### Development
 

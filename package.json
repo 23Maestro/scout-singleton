@@ -20,9 +20,16 @@
       "icon": "id-tasks.png"
     },
     {
-      "name": "inbox-check",
-      "title": "Inbox Check",
-      "description": "View and assign new NPID inbox threads",
+      "name": "assign-videoteam-inbox",
+      "title": "Assign Videoteam Inbox",
+      "description": "View and assign new unassigned NPID inbox messages",
+      "mode": "view",
+      "icon": "inbox-check.png"
+    },
+    {
+      "name": "read-videoteam-inbox",
+      "title": "Read Videoteam Inbox",
+      "description": "Read messages from assigned/ongoing threads",
       "mode": "view",
       "icon": "inbox-check.png"
     },
@@ -97,6 +104,7 @@
     "@raycast/api": "^1.103.2",
     "@raycast/utils": "^2.2.1",
     "axios": "^1.8.4",
+    "cheerio": "^1.0.0-rc.12",
     "date-fns": "^4.1.0",
     "lodash": "^4.17.21",
     "node-html-markdown": "^1.3.0",
@@ -116,6 +124,9 @@
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "lint": "ray lint",
-    "lint-ci": "ray lint --relaxed"
+    "lint-ci": "ray lint --relaxed",
+    "refresh-tokens-from-har": "node scripts/refresh-tokens-from-har.cjs",
+    "extract-npid-tokens": "node scripts/extract-npid-tokens-from-har.cjs",
+    "refresh-npid-session": "node scripts/refresh-npid-session.cjs"
   }
 }
