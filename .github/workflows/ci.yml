@@ -1,7 +1,6 @@
 name: CI (Disabled)
 # Disabled - using ci-custom.yml instead
 on: []
-  # workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest

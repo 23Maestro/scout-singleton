@@ -14,6 +14,8 @@ const FALLBACK_PATHS = [
   path.join(process.cwd(), 'state', 'npid_tokens.json'),
   path.join(process.cwd(), 'metadata', 'npid_tokens.json'),
   path.join(process.env.HOME || '', '.scout', 'npid_tokens.json'),
+  // Add absolute path to the actual token file
+  '/Users/singleton23/Raycast/scout-singleton/state/npid_tokens.json',
 ].filter((entry): entry is string => Boolean(entry));
 
 function readJsonFile(filePath: string): StoredNPIDTokens | null {
@@ -33,6 +35,8 @@ function readJsonFile(filePath: string): StoredNPIDTokens | null {
 }
 
 export function loadStoredNPIDTokens(): StoredNPIDTokens | null {
+  console.log('🔍 loadStoredNPIDTokens: Checking paths:', FALLBACK_PATHS);
+  
   for (const candidate of FALLBACK_PATHS) {
     const expanded = candidate.startsWith('~')
       ? path.join(process.env.HOME || '', candidate.slice(1))
@@ -40,13 +44,16 @@ export function loadStoredNPIDTokens(): StoredNPIDTokens | null {
     if (!expanded) {
       continue;
     }
+    console.log('🔍 Checking path:', expanded, 'exists:', fs.existsSync(expanded));
     if (!fs.existsSync(expanded)) {
       continue;
     }
     const tokens = readJsonFile(expanded);
     if (tokens) {
+      console.log('🔍 Found tokens at:', expanded);
       return tokens;
     }
   }
+  console.log('🔍 No tokens found in any path');
   return null;
 }

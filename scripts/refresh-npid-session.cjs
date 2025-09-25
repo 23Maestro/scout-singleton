@@ -48,9 +48,16 @@ function parseArgs() {
 // Extract cookies from Set-Cookie header
 function parseSetCookie(setCookieHeader) {
   const cookies = {};
+  
+  if (!setCookieHeader) {
+    return cookies;
+  }
+  
   const cookieStrings = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
   
   for (const cookieString of cookieStrings) {
+    if (!cookieString) continue;
+    
     const parts = cookieString.split(';');
     const nameValue = parts[0].split('=');
     if (nameValue.length === 2) {
@@ -167,10 +174,10 @@ async function refreshNPIDSession() {
         'Cookie': Object.entries(initialCookies).map(([name, value]) => `${name}=${value}`).join('; ')
       },
       body: loginFormData.toString(),
-      redirect: 'manual' // Don't follow redirects automatically
+      redirect: 'follow' // Follow redirects to establish session
     });
     
-    if (authResponse.status !== 302) {
+    if (!authResponse.ok) {
       throw new Error(`Login failed: ${authResponse.status} ${authResponse.statusText}`);
     }
     
@@ -212,6 +219,12 @@ async function refreshNPIDSession() {
       sessionCookie: allFinalCookies['myapp_session'] || allFinalCookies['laravel_session'],
       formToken: finalFormToken || xsrfToken
     };
+    
+    console.log('🔍 Debug - Available cookies:', Object.keys(allFinalCookies));
+    console.log('🔍 Debug - XSRF-TOKEN:', allFinalCookies['XSRF-TOKEN'] ? 'Found' : 'Missing');
+    console.log('🔍 Debug - myapp_session:', allFinalCookies['myapp_session'] ? 'Found' : 'Missing');
+    console.log('🔍 Debug - laravel_session:', allFinalCookies['laravel_session'] ? 'Found' : 'Missing');
+    console.log('🔍 Debug - finalFormToken:', finalFormToken ? 'Found' : 'Missing');
     
     if (!tokens.xsrfToken || !tokens.sessionCookie) {
       throw new Error('Could not extract required tokens from session');

@@ -87,7 +87,8 @@ function parseTimeStamp(raw: string | undefined | null): {
 }
 
 function detectAssignmentStatus(container: Cheerio<Element>) {
-  const hasAssignButton = container.find('.assign_video_team, #assignvideoteam').length > 0;
+  // Look for the actual button class from the HAR file
+  const hasAssignButton = container.find('.assign_video_team_btn, .assign_video_team, #assignvideoteam').length > 0;
   const status = hasAssignButton ? 'unassigned' : 'assigned';
   console.log('🔍 Assignment status:', status, 'hasAssignButton:', hasAssignButton);
   return status;
@@ -97,10 +98,21 @@ function extractInboxItems(html: string): NPIDInboxMessage[] {
   const $ = load(html);
   const items: NPIDInboxMessage[] = [];
 
-  $('.ImageProfile').each((_, element) => {
+  console.log('🔍 extractInboxItems: Looking for .ImageProfile elements');
+  console.log('🔍 Found .ImageProfile count:', $('.ImageProfile').length);
+  
+  // Debug: Show what other elements we can find
+  console.log('🔍 Found elements with assign buttons:', $('.assign_video_team_btn').length);
+  console.log('🔍 Found elements with itemid attribute:', $('[itemid]').length);
+
+  $('.ImageProfile').each((index, element) => {
     const container = $(element);
     const messageId = container.attr('itemid') ?? '';
+    
+    console.log(`🔍 Processing ImageProfile ${index + 1}, itemid: ${messageId}`);
+    
     if (!messageId) {
+      console.log('🔍 Skipping item without messageId');
       return;
     }
 
@@ -115,6 +127,13 @@ function extractInboxItems(html: string): NPIDInboxMessage[] {
     const dateLabel = cleanText(container.find('.date_css').text() || '');
     const isUnread = container.find('#unread-circle, .rightTwo.unread').length > 0;
     const status = detectAssignmentStatus(container);
+
+    console.log(`🔍 Item ${index + 1} details:`, {
+      messageId,
+      subject: subject.substring(0, 50),
+      status,
+      canAssign: status === 'unassigned'
+    });
 
     items.push({
       id: messageId,
@@ -139,6 +158,7 @@ function extractInboxItems(html: string): NPIDInboxMessage[] {
     });
   });
 
+  console.log('🔍 extractInboxItems: Final items count:', items.length);
   return items;
 }
 
@@ -165,9 +185,25 @@ export async function fetchInboxThreads(
 
   console.log('🔍 API response length:', response?.length || 0);
   console.log('🔍 Response contains ImageProfile:', response?.includes('ImageProfile') || false);
+  console.log('🔍 Response contains assign_video_team_btn:', response?.includes('assign_video_team_btn') || false);
+  
+  // Debug: Show first 500 characters of response
+  if (response) {
+    console.log('🔍 First 500 chars of response:', response.substring(0, 500));
+  }
   
   const items = extractInboxItems(response ?? '');
   console.log('🔍 Extracted items count:', items.length);
+  
+  // Debug: Show details of first item if any
+  if (items.length > 0) {
+    console.log('🔍 First item details:', {
+      id: items[0].id,
+      subject: items[0].subject,
+      status: items[0].status,
+      canAssign: items[0].canAssign
+    });
+  }
   
   return items;
 }
