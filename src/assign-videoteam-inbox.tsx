@@ -315,12 +315,53 @@ export default function InboxCheck() {
   const loadInboxMessages = async () => {
     try {
       setIsLoading(true);
+      
+      // Step 1: Fetch basic threads
       const basicThreads = await fetchInboxThreads();
-      console.log('🔍 Basic threads count:', basicThreads.length);
+      await showToast({
+        style: Toast.Style.Animated,
+        title: `Step 1: Found ${basicThreads.length} threads`,
+        message: basicThreads.length === 0 ? 'DEBUG: No threads found - check HTML parsing' : 'Checking thread details...',
+      });
+      
+      // Step 2: Show first thread details for debugging
+      if (basicThreads.length > 0) {
+        const firstThread = basicThreads[0];
+        await showToast({
+          style: Toast.Style.Animated,
+          title: `First thread: ${firstThread.subject || 'No subject'}`,
+          message: `ID: ${firstThread.id}, canAssign: ${firstThread.canAssign}`,
+        });
+      }
+      
+      // Step 3: Enrich with details
       const withDetails = await enrichMessagesWithDetails(basicThreads);
-      console.log('🔍 With details count:', withDetails.length);
+      await showToast({
+        style: Toast.Style.Animated,
+        title: `Step 2: Enriched ${withDetails.length} threads`,
+        message: 'Filtering assignable messages...',
+      });
+      
+      // Step 4: Show filtering details
+      const assignableCount = withDetails.filter((m) => m.canAssign === true).length;
+      const unassignableCount = withDetails.filter((m) => m.canAssign === false).length;
+      const undefinedCount = withDetails.filter((m) => m.canAssign === undefined).length;
+      
+      await showToast({
+        style: Toast.Style.Animated,
+        title: `Step 3: Filtering results`,
+        message: `Assignable: ${assignableCount}, Not: ${unassignableCount}, Undefined: ${undefinedCount}`,
+      });
+      
+      // Step 5: Final filter
       const unassigned = withDetails.filter((message) => message.canAssign !== false);
-      console.log('🔍 Unassigned (can assign) count:', unassigned.length);
+      
+      await showToast({
+        style: unassigned.length > 0 ? Toast.Style.Success : Toast.Style.Failure,
+        title: `Final: ${unassigned.length} assignable messages`,
+        message: unassigned.length === 0 ? 'DEBUG: Check filtering logic' : 'Ready to assign',
+      });
+      
       setMessages(unassigned);
     } catch (error) {
       await showToast({

@@ -18,6 +18,12 @@ function getNPIDAxiosInstance() {
   const xsrfToken = storedTokens?.xsrf_token || npidXsrfToken;
   const sessionCookie = storedTokens?.session_cookie || npidSession;
 
+  if (!xsrfToken || !sessionCookie) {
+    throw new Error(
+      'Missing NPID authentication. Ensure the token refresh service is running or configure npidXsrfToken/npidSession preferences.',
+    );
+  }
+
   console.log('🔍 Token Debug:', {
     hasStoredTokens: !!storedTokens,
     hasXsrfToken: !!xsrfToken,
@@ -26,13 +32,6 @@ function getNPIDAxiosInstance() {
     sessionCookieLength: sessionCookie?.length || 0
   });
 
-  if (!xsrfToken || !sessionCookie) {
-    throw new Error(
-      'Missing NPID authentication. Ensure the token refresh service is running or configure npidXsrfToken/npidSession preferences.',
-    );
-  }
-
-  // ✅ FIXED: Match working curl command - only send Cookie header
   return axios.create({
     baseURL: npidBaseUrl || 'https://dashboard.nationalpid.com',
     headers: {
@@ -73,41 +72,39 @@ export async function fetchInboxMessages(): Promise<NPIDInboxMessage[]> {
 }
 
 export async function fetchVideoProgress(): Promise<NPIDVideoProgress[]> {
-  try {
-    // TODO: Fix video progress endpoints - these are causing "Unauthorized" errors
-    console.log('Video progress fetch disabled - endpoints need to be fixed');
-    return [];
-  } catch (error) {
-    console.error('Failed to fetch video progress:', error);
-    throw error;
-  }
+  // VIDEO PROGRESS SYSTEM - SEPARATE from inbox system
+  // This system handles the video progress dashboard with task statuses and stage tracking
+  console.log('VIDEO PROGRESS SYSTEM: Fetch disabled - separate system from inbox');
+  console.log('This would fetch task progress data from the video progress page');
+  return [];
+  // TODO: Implement video progress API when video progress page endpoints are identified
 }
 
 export async function fetchMessageDetails(messageId: string): Promise<any> {
-  try {
-    // TODO: Fix message details endpoints - these are causing "Unauthorized" errors
-    console.log(`Message details fetch disabled for ${messageId} - endpoints need to be fixed`);
-    return null;
-  } catch (error) {
-    console.error('Failed to fetch message details:', error);
-    throw error;
-  }
+  // INBOX SYSTEM - Uses HTML parsing for message details
+  // This is handled by the video-team-inbox.ts fetchMessageDetail function
+  console.log('INBOX SYSTEM: Message details handled by HTML parsing system');
+  console.log(`Use fetchMessageDetail() from video-team-inbox.ts for message: ${messageId}`);
+  return null;
+  // TODO: Route to video-team-inbox.ts fetchMessageDetail if needed
 }
 
 export async function assignInboxMessage(messageId: string, editorId?: string): Promise<void> {
   try {
-    // Use the working HTML parsing system for assignment
+    // INBOX SYSTEM ONLY - Uses HTML parsing for assignment workflow
     const { assignVideoTeamMessage, fetchAssignmentModal } = await import('../lib/video-team-inbox');
     
-    // Get the assignment modal to get the form token
     const modal = await fetchAssignmentModal(messageId);
+    console.log('Assignment modal loaded for message:', messageId);
+    console.log('Available assignment options:', {
+      owners: modal.owners?.length || 0,
+      stages: modal.stages?.length || 0,
+      videoStatuses: modal.videoStatuses?.length || 0
+    });
     
-    // TODO: Get actual values from the message instead of hardcoded defaults
-    console.log('Assignment modal data:', modal);
-    console.log('Would assign message with editorId:', editorId);
-    
-    // For now, just log instead of making the assignment
-    // await assignVideoTeamMessage({ ... });
+    // TODO: Implement actual assignment logic when needed
+    // This would require proper contact resolution and assignment parameters
+    console.log('Assignment workflow ready - implementation pending');
   } catch (error) {
     console.error('Failed to assign inbox message:', error);
     throw error;
@@ -118,23 +115,18 @@ export async function updateVideoProgress(
   playerId: string,
   progress: Partial<NPIDVideoProgress>,
 ): Promise<void> {
-  try {
-    // TODO: Fix video progress update endpoints - these are causing "Unauthorized" errors
-    console.log(`Video progress update disabled for ${playerId}:`, progress);
-    // await npidRequest(`/videoteammsg/videoprogress/${playerId}`, { ... });
-  } catch (error) {
-    console.error('Failed to update video progress:', error);
-    throw error;
-  }
+  // VIDEO PROGRESS SYSTEM - SEPARATE from inbox system
+  // This system handles task status updates and stage changes on the video progress page
+  console.log('VIDEO PROGRESS SYSTEM: Update disabled - separate system from inbox');
+  console.log(`Would update player ${playerId}:`, progress);
+  // TODO: Implement video progress API when video progress page endpoints are identified
 }
 
 export async function fetchPlayerDetails(playerId: string): Promise<any> {
-  try {
-    // TODO: Fix player details endpoint - this might be causing "Unauthorized" errors
-    console.log(`Player details fetch disabled for ${playerId} - endpoint needs to be fixed`);
-    return null;
-  } catch (error) {
-    console.error('Failed to fetch player details:', error);
-    throw error;
-  }
+  // VIDEO PROGRESS SYSTEM - SEPARATE from inbox system
+  // This system handles player profile data from the video progress page
+  console.log('VIDEO PROGRESS SYSTEM: Fetch disabled - separate system from inbox');
+  console.log(`Would fetch player details for: ${playerId}`);
+  return null;
+  // TODO: Implement player details API when video progress page endpoints are identified
 }

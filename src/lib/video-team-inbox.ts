@@ -1,6 +1,6 @@
 import { load, type Cheerio, type CheerioAPI, type Element } from 'cheerio';
 import { parse } from 'date-fns';
-import { HtmlToTextOptions, NodeHtmlMarkdown } from 'node-html-markdown';
+import { NodeHtmlMarkdown } from 'node-html-markdown';
 import { npidRequest } from '../api/npid';
 import { TaskStage, TaskStatus } from '../types/workflow';
 import {
@@ -29,7 +29,7 @@ function cleanText(input: string) {
   return input.replace(/\s+/g, ' ').trim();
 }
 
-function toMarkdown(html: string, options?: HtmlToTextOptions) {
+function toMarkdown(html: string, options?: any) {
   return NodeHtmlMarkdown.translate(html, options ?? { keepDataImages: false }).trim();
 }
 
@@ -180,6 +180,9 @@ export async function fetchInboxThreads(
       refresh: 'false',
       page_start_number: pageStart,
       search_text: searchText,
+    },
+    headers: {
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     },
   });
 
@@ -537,8 +540,8 @@ export async function enrichMessagesWithDetails(
           timeStampIso: detail.timeStampIso,
           stage: detail.stage,
           videoStatus: detail.videoProgressStatus,
-          canAssign: !detail.isAssigned,
-          status: detail.isAssigned ? 'assigned' : 'unassigned',
+          canAssign: message.canAssign, // Preserve original HTML parsing result
+          status: message.status, // Preserve original HTML parsing result
           attachments: detail.attachments,
           athleteLinks: detail.athleteLinks,
         });
