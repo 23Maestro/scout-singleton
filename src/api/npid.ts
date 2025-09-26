@@ -18,12 +18,21 @@ function getNPIDAxiosInstance() {
   const xsrfToken = storedTokens?.xsrf_token || npidXsrfToken;
   const sessionCookie = storedTokens?.session_cookie || npidSession;
 
+  console.log('🔍 Token Debug:', {
+    hasStoredTokens: !!storedTokens,
+    hasXsrfToken: !!xsrfToken,
+    hasSessionCookie: !!sessionCookie,
+    xsrfTokenLength: xsrfToken?.length || 0,
+    sessionCookieLength: sessionCookie?.length || 0
+  });
+
   if (!xsrfToken || !sessionCookie) {
     throw new Error(
       'Missing NPID authentication. Ensure the token refresh service is running or configure npidXsrfToken/npidSession preferences.',
     );
   }
 
+  // ✅ FIXED: Match working curl command - only send Cookie header
   return axios.create({
     baseURL: npidBaseUrl || 'https://dashboard.nationalpid.com',
     headers: {
