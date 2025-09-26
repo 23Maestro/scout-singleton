@@ -127,6 +127,7 @@
     "lint-ci": "ray lint --relaxed",
     "refresh-tokens-from-har": "node scripts/refresh-tokens-from-har.cjs",
     "extract-npid-tokens": "node scripts/extract-npid-tokens-from-har.cjs",
-    "refresh-npid-session": "node scripts/refresh-npid-session.cjs"
+    "refresh-npid-session": "node scripts/refresh-npid-session.cjs",
+    "refresh-tokens-simple": "node scripts/simple-token-refresh.cjs"
   }
 }
