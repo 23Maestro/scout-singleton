@@ -367,7 +367,7 @@ export async function fetchAssignmentModal(messageId: string): Promise<VideoTeam
     owners[0];
 
   const defaultSearchFor =
-    $('#assignvideoteamtoemailform select#contactfor option:selected').attr('value') ?? 'athlete';
+    ($('#assignvideoteamtoemailform select#contactfor option:selected').attr('value') ?? 'athlete') as VideoTeamSearchCategory;
   const contactValue = $('#assignvideoteamtoemailform #contactname').attr('value') ?? '';
   const messageHiddenId = $('#assignvideoteamtoemailform #messageid').attr('value') ?? '';
   const formToken = $('#assignvideoteamtoemailform input[name="_token"]').attr('value') ?? '';
@@ -490,21 +490,21 @@ export interface AssignVideoTeamPayload {
   status: TaskStatus;
   searchFor: VideoTeamSearchCategory;
   formToken: string;
+
+  contact?: string; // email address for contact field
 }
 
 export async function assignVideoTeamMessage(payload: AssignVideoTeamPayload): Promise<void> {
   const form = new URLSearchParams();
   form.append('_token', payload.formToken);
-  form.append('messageid', payload.messageId);
   form.append('contact_task', payload.contactId);
-  form.append('videoscoutassignedto[]', payload.ownerId);
+  form.append('athlete_main_id', payload.athleteMainId || '');
+  form.append('messageid', payload.messageId);
+  form.append('videoscoutassignedto', payload.ownerId);
+  form.append('contactfor', payload.searchFor);
+  form.append('contact', payload.contact || '');
   form.append('video_progress_stage', payload.stage);
   form.append('video_progress_status', payload.status);
-  form.append('contactfor', payload.searchFor);
-
-  if (payload.athleteMainId) {
-    form.append('athlete_main_id', payload.athleteMainId);
-  }
 
   await npidRequest(ASSIGNMENT_SUBMIT_ENDPOINT, {
     method: 'POST',

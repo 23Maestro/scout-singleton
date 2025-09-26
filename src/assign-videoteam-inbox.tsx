@@ -28,9 +28,6 @@ import {
   VideoTeamSearchCategory,
 } from './types/video-team';
 import { TaskStage, TaskStatus } from './types/workflow';
-import { callAsanaTool } from './bridge/mcpClient';
-
-const ID_TASKS_PROJECT_GID = '1208992901563477';
 
 function formatTimestamp(message: NPIDInboxMessage): string {
   if (message.timeStampIso) {
@@ -43,51 +40,6 @@ function formatTimestamp(message: NPIDInboxMessage): string {
   return message.timestamp || 'Unknown time';
 }
 
-async function createAsanaTaskForInboxMessage(
-  message: NPIDInboxMessage,
-  stage: TaskStage,
-  status: TaskStatus,
-  assignedOwner: string,
-  contact: VideoTeamContact,
-): Promise<string> {
-  const received = formatTimestamp(message);
-
-  const notes = `
-**Received:** ${received}
-**NPID Stage / Status:** ${stage} / ${status}
-**Contact:** ${message.name} (${message.email})
-**Contact ID:** ${message.contactid || contact.contactId}
-**Athlete Main ID:** ${contact.athleteMainId ?? 'Unknown'}
-**Message ID:** ${message.id}
----
-${message.content || message.preview}
-  `.trim();
-
-  const taskData = {
-    project_id: ID_TASKS_PROJECT_GID,
-    name: `${message.name} – ${message.subject}`,
-    notes,
-    assignee: assignedOwner,
-    custom_fields: {
-      Stage: stage,
-      Status: status,
-      PlayerID: contact.athleteMainId ?? message.player_id ?? 'Unknown',
-      ContactID: message.contactid || contact.contactId,
-    },
-  };
-
-  const response = await callAsanaTool('asana_create_task', taskData);
-  if (!response.success) {
-    throw new Error(response.error || 'Failed to create Asana task');
-  }
-
-  const responseData = JSON.parse(response.data as string);
-  if (!responseData?.data?.gid) {
-    throw new Error('Invalid response from Asana API - missing task GID');
-  }
-
-  return responseData.data.gid;
-}
 
 interface AssignmentModalProps {
   message: NPIDInboxMessage;
@@ -246,9 +198,11 @@ function AssignmentModal({
 function EmailContentDetail({
   message,
   onBack,
+  onAssign,
 }: {
   message: NPIDInboxMessage;
   onBack: () => void;
+  onAssign: (message: NPIDInboxMessage) => void;
 }) {
   const received = formatTimestamp(message);
 
@@ -287,6 +241,11 @@ function EmailContentDetail({
       metadata={metadata}
       actions={
         <ActionPanel>
+          <Action
+            title="Assign to Video Team"
+            icon={Icon.PersonCircle}
+            onAction={() => onAssign(message)}
+          />
           <Action title="Back to Inbox" icon={Icon.ArrowLeft} onAction={onBack} />
           {message.attachments?.map((attachment) =>
             attachment.url ? (
@@ -416,13 +375,13 @@ export default function InboxCheck() {
                 status,
                 searchFor,
                 formToken: modalData.formToken,
+                contact: message.email,
               };
 
               await assignVideoTeamMessage(payload);
               const ownerName =
                 modalData.owners.find((owner) => owner.value === ownerId)?.label ??
                 'Jerami Singleton';
-              await createAsanaTaskForInboxMessage(message, stage, status, ownerName, contact);
 
               assigningToast.style = Toast.Style.Success;
               assigningToast.title = 'Assigned to Video Team';
@@ -447,7 +406,7 @@ export default function InboxCheck() {
   };
 
   const handleViewMessage = (message: NPIDInboxMessage) => {
-    push(<EmailContentDetail message={message} onBack={pop} />);
+    push(<EmailContentDetail message={message} onBack={pop} onAssign={handleAssignTask} />);
   };
 
   return (
@@ -470,14 +429,14 @@ export default function InboxCheck() {
             actions={
               <ActionPanel>
                 <Action
-                  title="Assign to Video Team"
-                  icon={Icon.PersonCircle}
-                  onAction={() => handleAssignTask(message)}
-                />
-                <Action
                   title="View Thread"
                   icon={Icon.Eye}
                   onAction={() => handleViewMessage(message)}
+                />
+                <Action
+                  title="Assign to Video Team"
+                  icon={Icon.PersonCircle}
+                  onAction={() => handleAssignTask(message)}
                 />
                 <ActionPanel.Section>
                   <Action
