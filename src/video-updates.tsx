@@ -25,10 +25,12 @@ export default function VideoUpdatesCommand(
       });
 
       try {
-        const pythonInterpreter = 'python3';
-        // Updated to use current workspace scripts directory
-        const workspaceDir = process.cwd();
-        const scriptPath = path.join(workspaceDir, 'scripts', 'video_updates.py');
+        const pythonInterpreter = '/usr/local/bin/python3';
+        // Use absolute path to the script since we know exactly where it is
+        const scriptPath = '/Users/singleton23/Raycast/scout-singleton/scripts/video_updates.py';
+        
+        // Debug logging
+        console.log('Script path:', scriptPath);
 
         const escapeShellArg = (str: string) => `"${str.replace(/"/g, '\\"')}"`;
 

@@ -241,20 +241,28 @@ function EmailContentDetail({
       metadata={metadata}
       actions={
         <ActionPanel>
-          <Action
-            title="Assign to Video Team"
-            icon={Icon.PersonCircle}
-            onAction={() => onAssign(message)}
-          />
-          <Action title="Back to Inbox" icon={Icon.ArrowLeft} onAction={onBack} />
-          {message.attachments?.map((attachment) =>
-            attachment.url ? (
-              <Action.OpenInBrowser
-                key={attachment.url}
-                title={`Open Attachment – ${attachment.fileName}`}
-                url={attachment.url}
-              />
-            ) : null,
+          <ActionPanel.Section>
+            <Action
+              title="Assign to Video Team"
+              icon={Icon.PersonCircle}
+              onAction={() => onAssign(message)}
+            />
+            <Action title="Back to Inbox" icon={Icon.ArrowLeft} onAction={onBack} />
+          </ActionPanel.Section>
+          
+          {message.attachments && message.attachments.length > 0 && (
+            <ActionPanel.Section title="📎 Attachments">
+              {message.attachments
+                .filter(attachment => attachment.url)
+                .map((attachment) => (
+                  <Action.OpenInBrowser
+                    key={attachment.url}
+                    title={`${attachment.downloadable ? 'Download' : 'View'} ${attachment.fileName}`}
+                    url={attachment.url!}
+                    icon={attachment.downloadable ? Icon.Download : Icon.Eye}
+                  />
+                ))}
+            </ActionPanel.Section>
           )}
         </ActionPanel>
       }
@@ -416,7 +424,18 @@ export default function InboxCheck() {
       searchBarPlaceholder="Search subject or contact"
     >
       {messages.map((message) => {
-        const accessories = [{ text: formatTimestamp(message) }];
+        const hasAttachments = message.attachments && message.attachments.length > 0;
+        const downloadableCount = message.attachments?.filter(att => att.downloadable && att.url).length || 0;
+        
+        const accessories = [
+          { text: formatTimestamp(message) },
+          ...(hasAttachments ? [
+            { 
+              icon: Icon.Paperclip, 
+              tooltip: `${message.attachments?.length} attachment(s), ${downloadableCount} downloadable` 
+            }
+          ] : [])
+        ];
 
         return (
           <List.Item
@@ -428,16 +447,32 @@ export default function InboxCheck() {
             keywords={[message.subject, message.preview, message.email]}
             actions={
               <ActionPanel>
-                <Action
-                  title="View Thread"
-                  icon={Icon.Eye}
-                  onAction={() => handleViewMessage(message)}
-                />
-                <Action
-                  title="Assign to Video Team"
-                  icon={Icon.PersonCircle}
-                  onAction={() => handleAssignTask(message)}
-                />
+                <ActionPanel.Section>
+                  <Action
+                    title="View Thread"
+                    icon={Icon.Eye}
+                    onAction={() => handleViewMessage(message)}
+                  />
+                  <Action
+                    title="Assign to Video Team"
+                    icon={Icon.PersonCircle}
+                    onAction={() => handleAssignTask(message)}
+                  />
+                </ActionPanel.Section>
+                
+                {downloadableCount > 0 && (
+                  <ActionPanel.Section title="📎 Quick Download">
+                    {message.attachments?.filter(att => att.downloadable && att.url).map((attachment) => (
+                      <Action.OpenInBrowser
+                        key={attachment.url}
+                        title={`Download ${attachment.fileName}`}
+                        url={attachment.url!}
+                        icon={Icon.Download}
+                      />
+                    ))}
+                  </ActionPanel.Section>
+                )}
+                
                 <ActionPanel.Section>
                   <Action
                     title="Reload Inbox"

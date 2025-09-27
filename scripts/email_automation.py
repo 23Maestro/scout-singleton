@@ -233,24 +233,22 @@ if __name__ == "__main__":
     driver = None
     try:
         # REVERTED to standard Selenium WebDriver setup
-        from selenium.webdriver.chrome.service import Service as ChromeService
         from selenium.webdriver.chrome.options import Options
-        from webdriver_manager.chrome import ChromeDriverManager
 
-        print("Setting up WebDriver with persistent Chrome profile for Email Automation (standard Selenium)...")
+        print("Setting up WebDriver with Selenium Manager for Email Automation...")
         options = Options()
-        user_data_dir = os.path.expanduser("~/selenium_chrome_profile") # Original shared profile
+        # Use the shared user-data-dir with a different profile directory for concurrent sessions
+        user_data_dir = os.path.expanduser("~/selenium_chrome_profile")
         options.add_argument(f"--user-data-dir={user_data_dir}")
+        options.add_argument("--profile-directory=ScoutEmailAutomation")  # Use separate profile within same data dir
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--start-maximized")
         
-        chromedriver_path = ChromeDriverManager().install()
-        service = ChromeService(executable_path=chromedriver_path)
-        
-        driver = webdriver.Chrome(service=service, options=options)
+        # Let Selenium Manager handle ChromeDriver automatically
+        driver = webdriver.Chrome(options=options)
         driver.implicitly_wait(SHORT_WAIT_TIMEOUT) # Implicit wait
-        print("Standard WebDriver for email automation created successfully.")
+        print("Selenium Manager WebDriver for email automation created successfully.")
 
         send_athlete_email(driver, args.athlete_name, args.template_value)
 

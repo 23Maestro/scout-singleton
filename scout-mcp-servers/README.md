@@ -18,7 +18,7 @@ This directory contains Docker assets for local Model Context Protocol servers u
    - `ASANA_SCOPES` – Optional additional scopes passed to `mcp-remote`
    - `NPID_USERNAME`, `NPID_PASSWORD` – Dashboard credentials used by the token manager
    - `NPID_BASE_URL` – Optional override (defaults to the production dashboard)
-   - `NPID_TOKEN_PATH` – Optional custom location for the shared token cache (defaults to `/app/state/npid_tokens.json` inside the container)
+   - `NPID_TOKEN_PATH` – `/Users/singleton23/Raycast/scout-singleton/state/npid_tokens.json`)
 
 Authentication tokens issued by Asana are persisted inside the named Docker volume `asana-mcp-auth`, so you only need to approve the OAuth flow the first time.
 

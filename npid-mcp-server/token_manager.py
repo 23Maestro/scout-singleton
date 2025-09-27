@@ -69,7 +69,7 @@ class TokenManager:
         if not self.username or not self.password:
             logger.warning("NPID credentials not provided; token refresh will be disabled.")
 
-        default_path = os.environ.get("NPID_TOKEN_PATH", "/app/state/npid_tokens.json")
+        default_path = os.environ.get("NPID_TOKEN_PATH", "/Users/singleton23/Raycast/scout-singleton/state/npid_tokens.json")
         self.token_path = Path(default_path).expanduser()
         self.token_path.parent.mkdir(parents=True, exist_ok=True)
 

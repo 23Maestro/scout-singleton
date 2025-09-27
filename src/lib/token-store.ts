@@ -10,11 +10,7 @@ export interface StoredNPIDTokens {
 }
 
 const FALLBACK_PATHS = [
-  process.env.NPID_TOKEN_PATH,
-  path.join(process.cwd(), 'state', 'npid_tokens.json'),
-  path.join(process.cwd(), 'metadata', 'npid_tokens.json'),
-  path.join(process.env.HOME || '', '.scout', 'npid_tokens.json'),
-  // Add absolute path to the actual token file
+  // ONLY use the correct path - no more wasted checking of wrong paths
   '/Users/singleton23/Raycast/scout-singleton/state/npid_tokens.json',
 ].filter((entry): entry is string => Boolean(entry));
 

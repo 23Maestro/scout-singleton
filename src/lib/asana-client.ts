@@ -140,7 +140,7 @@ export function useAsanaVideoTasks() {
           playerId: cf(t, 'PlayerID'),
           stage: toStage(cf(t, 'Stage')),
           status: toStatus(cf(t, 'Status')),
-          athleteName: cf(t, 'Name'),
+          athleteName: t.name, // Task name IS the athlete name
           sport: cf(t, 'Sport'),
           gradYear: cf(t, 'Grad Year'),
           city: city,

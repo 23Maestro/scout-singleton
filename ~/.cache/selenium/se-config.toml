@@ -1,0 +1,26 @@
+# Selenium Manager Configuration for NPID Automation
+# Based on working playerid-updates-v2 extension configuration
+
+browser = "chrome"
+driver = "chromedriver"
+browser-version = "stable"
+output = "LOGGER"
+os = "macos"
+arch = "arm64"
+debug = true
+trace = true
+cache-path = "/Users/singleton23/.cache/selenium"
+ttl = 3600
+language-binding = "Python"
+avoid-stats = true
+
+# NPID-specific browser configuration (from working v2 extension)
+chrome-path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+chromedriver-path = "/opt/homebrew/bin/chromedriver"
+
+# Skip driver in PATH to use system ChromeDriver
+skip-driver-in-path = true
+
+# Force browser download if needed
+force-browser-download = false
+avoid-browser-download = false

@@ -55,6 +55,13 @@
       "icon": "video-updates.png"
     }
   ],
+  "tools": [
+    {
+      "name": "reconnect",
+      "title": "Reconnect",
+      "description": "Executes the scripts for refreshing tokens"
+    }
+  ],
   "preferences": [
     {
       "name": "npidXsrfToken",

@@ -40,17 +40,6 @@ rm cookies.txt
 echo "✅ Tokens refreshed!"
 ```
 
-## **🤖 Automated Option (When It Works)**
-
-The automated scripts sometimes fail due to password encoding issues. If you want to try:
-
-```bash
-# Try the simple script
-NPID_EMAIL="jsingleton@prospectid.com" NPID_PASSWORD="YBh@Y8Us@1&qwd$" node scripts/simple-token-refresh.cjs
-
-# Or the original script  
-NPID_EMAIL="jsingleton@prospectid.com" NPID_PASSWORD="YBh@Y8Us@1&qwd$" node scripts/refresh-npid-session.cjs
-```
 
 ## **📅 Token Schedule**
 
@@ -79,4 +68,3 @@ If you see `<title>National Prospect ID | Login</title>` → ❌ Tokens expired
 3. **Keep this guide handy** - the manual method always works
 4. **Your working code is safe** on GitHub, tokens are just temporary auth
 
-The **manual method is 100% reliable** - use it when the scripts fail!

@@ -49,7 +49,7 @@ Raycast Extension → MCP Gateway → NPID MCP Server → NPID Dashboard API
 ```
 
 The server authenticates with the dashboard by storing a small token bundle in
-`/app/state/npid_tokens.json` (configurable via `NPID_TOKEN_PATH`). The file is
+`/Users/singleton23/Raycast/scout-singleton/state/npid_tokens.json` (configurable via `NPID_TOKEN_PATH`). The file is
 designed to live on a shared host volume so the Raycast extension can reuse the
 same session without manual copy/paste.
 

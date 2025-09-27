@@ -1,5 +1,6 @@
 import { npidRequest } from '../api/npid';
 import { TaskStage, TaskStatus } from '../types/workflow';
+import { load } from 'cheerio';
 
 export interface WebsitePlayerData {
   player_id: string;
@@ -19,12 +20,63 @@ export async function fetchWebsiteRowByPlayerId(
   playerId: string,
 ): Promise<WebsitePlayerData | null> {
   try {
-    // TODO: Fix video progress endpoints - these are causing "Unauthorized" errors
-    // The video progress page needs different authentication or endpoints
-    console.log(`Would fetch video progress data for player: ${playerId}`);
+    console.log(`Fetching video progress data for player: ${playerId}`);
     
-    // For now, return null instead of making API calls
-    return null;
+    // Use HTML parsing approach similar to inbox system
+    // Navigate to video progress page and search for the player
+    const response = await npidRequest('/videoteammsg/videomailprogress', {
+      method: 'GET',
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch video progress page: ${response.status}`);
+    }
+    
+    const html = await response.text();
+    const $ = load(html);
+    
+    // Parse the video progress page HTML to extract player data
+    // This will need to be updated with actual selectors from the page
+    const playerData: WebsitePlayerData = {
+      player_id: playerId,
+    };
+    
+    // Try to find player data in the page
+    // These selectors need to be updated based on actual page structure
+    try {
+      const nameElement = $('.athlete-name, .player-name, h1, h2').first();
+      if (nameElement.length) {
+        playerData.athlete_name = nameElement.text().trim();
+      }
+      
+      const stageElement = $('.current-stage, .stage-value, select[name*="stage"] option:selected').first();
+      if (stageElement.length) {
+        playerData.stage = stageElement.text().trim();
+      }
+      
+      const statusElement = $('.current-status, .status-value, select[name*="status"] option:selected').first();
+      if (statusElement.length) {
+        playerData.status = statusElement.text().trim();
+      }
+      
+      // Add more field extractions as needed
+      const schoolElement = $('.high-school, .school-name').first();
+      if (schoolElement.length) {
+        playerData.high_school = schoolElement.text().trim();
+      }
+      
+      const sportElement = $('.sport, .sport-type').first();
+      if (sportElement.length) {
+        playerData.sport = sportElement.text().trim();
+      }
+      
+    } catch (parseError) {
+      console.warn(`Could not parse some fields for player ${playerId}:`, parseError);
+    }
+    
+    console.log(`Extracted data for player ${playerId}:`, playerData);
+    return playerData;
+    
   } catch (error) {
     console.error(`Failed to fetch player data for ${playerId}:`, error);
     return null;

@@ -246,22 +246,31 @@ export default function ActiveTasks() {
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
 
     return matchesSearch && matchesStatus;
+  }).sort((a, b) => {
+    // Sort by due date - newest first (reverse chronological)
+    if (a.dueOn && b.dueOn) {
+      return new Date(b.dueOn).getTime() - new Date(a.dueOn).getTime();
+    }
+    if (a.dueOn && !b.dueOn) return -1; // Tasks with due dates come first
+    if (!a.dueOn && b.dueOn) return 1;
+    return 0; // No change if both have no due date
   });
 
-  // Group filtered tasks by stage
-  const filteredGroupedByStage: Record<TaskStage, VideoTask[]> = {
-    'In Queue': [],
-    'Awaiting Client': [],
-    'On Hold': [],
-    Done: [],
-    Unknown: [],
+  // Group filtered tasks by status
+  const filteredGroupedByStatus: Record<TaskStatus | 'All Tasks', VideoTask[]> = {
+    'Revisions': [],
+    'HUDL': [],
+    'Dropbox': [],
+    'External Links': [],
+    'Not Approved': [],
+    'All Tasks': [],
   };
 
   filteredTasks.forEach((task) => {
-    if (filteredGroupedByStage[task.stage]) {
-      filteredGroupedByStage[task.stage].push(task);
+    if (filteredGroupedByStatus[task.status]) {
+      filteredGroupedByStatus[task.status].push(task);
     } else {
-      filteredGroupedByStage.Unknown.push(task);
+      filteredGroupedByStatus['All Tasks'].push(task);
     }
   });
 
@@ -310,29 +319,29 @@ export default function ActiveTasks() {
         </List.Dropdown>
       }
     >
-      {(['In Queue', 'Awaiting Client', 'On Hold', 'Done', 'Unknown'] as TaskStage[]).map(
-        (stage) => {
-          const stageTasks = filteredGroupedByStage[stage];
-          if (stageTasks.length === 0) return null;
+      {(['Revisions', 'HUDL', 'Dropbox', 'External Links', 'Not Approved', 'All Tasks'] as (TaskStatus | 'All Tasks')[]).map(
+        (status) => {
+          const statusTasks = filteredGroupedByStatus[status];
+          if (statusTasks.length === 0) return null;
 
           return (
-            <List.Section key={stage} title={stage} subtitle={`${stageTasks.length} tasks`}>
-              {stageTasks.map((task) => (
+            <List.Section key={status} title={status} subtitle={`${statusTasks.length} tasks`}>
+              {statusTasks.map((task) => (
                 <List.Item
                   key={task.id}
                   title={task.taskName}
                   subtitle={[task.athleteName, task.sport, task.gradYear]
                     .filter(Boolean)
                     .join(' • ')}
-                  icon={{ source: getStageIcon(task.stage), tintColor: Color.Blue }}
+                  icon={{ source: getStatusIcon(task.status), tintColor: getStatusColor(task.status) }}
                   accessories={[
                     { text: 'ID Tasks', tooltip: 'Project: ID Tasks' },
                     {
                       icon: {
-                        source: getStatusIcon(task.status),
-                        tintColor: getStatusColor(task.status),
+                        source: getStageIcon(task.stage),
+                        tintColor: Color.Blue,
                       },
-                      tooltip: `Status: ${task.status}`,
+                      tooltip: `Stage: ${task.stage}`,
                     },
                     task.positions
                       ? {

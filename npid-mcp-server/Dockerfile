@@ -20,6 +20,9 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install Playwright browsers and dependencies
+RUN playwright install --with-deps chromium
+
 # Copy the server code
 COPY npid_server.py .
 COPY token_manager.py .
