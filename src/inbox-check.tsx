@@ -281,7 +281,7 @@ function extractVideoLinksFromTask(notes: string): string[] {
 }
 
 // Assignment Modal Component - mirrors NPID website workflow
-function AssignmentModal({ message, onAssign, onCancel }: { 
+export function AssignmentModal({ message, onAssign, onCancel }: {
   message: InboxMessage; 
   onAssign: (assignee: string, status: string, stage: string) => Promise<void>;
   onCancel: () => void;
@@ -364,7 +364,7 @@ function AssignmentModal({ message, onAssign, onCancel }: {
         title="Assignment Details"
         text={`Player: ${message.playerName}\nSport: ${message.sport}\nClass: ${message.class}`}
       />
-I      <Form.Separator />
+      <Form.Separator />
       
       <Form.Dropdown
         id="contactType"
